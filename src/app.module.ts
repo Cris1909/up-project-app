@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { EnvConfiguration } from './config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -12,6 +13,9 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
 
     MongooseModule.forRoot(process.env.MONGO_DB),
+
+    CategoriesModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],
