@@ -1,12 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+
+import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Errors } from 'src/constants';
 
 @Injectable()
 export class CategoriesService {
+  constructor(
+    @InjectModel(Category.name)
+    private readonly categoryModel: Model<Category>,
+  ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  async create(createCategoryDto: CreateCategoryDto) {
+    try {
+      const category = await this.categoryModel.create(createCategoryDto);
+      return category;
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
   findAll() {
@@ -23,5 +41,11 @@ export class CategoriesService {
 
   remove(id: number) {
     return `This action removes a #${id} category`;
+  }
+
+  private handleExceptions(error: any) {
+    if (error.code === 11000)
+      throw new BadRequestException(Errors.CATEGORY_ALREADY_EXIST);
+    throw new InternalServerErrorException(Errors.SERVER_ERROR);
   }
 }

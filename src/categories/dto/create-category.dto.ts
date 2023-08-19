@@ -1,13 +1,10 @@
-import { IsString,MinLength } from "class-validator"
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+
+import { Errors } from 'src/constants';
 
 export class CreateCategoryDto {
-
-  @IsString()
-  @MinLength(3)
-  name: string
-
-  @IsString()
-  @MinLength(3)
-  img?: string
-  
+  @MinLength(3, { message: Errors.NAME_TOO_SHORT })
+  @IsString({ message: Errors.NAME_MUST_BE_STRING })
+  @IsNotEmpty({ message: Errors.NAME_NOT_SEND })
+  name: string;
 }
