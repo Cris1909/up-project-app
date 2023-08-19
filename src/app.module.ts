@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
-import { CustomExceptionFilter } from './common/filters';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { EnvConfiguration } from './config';
 import { CategoriesModule } from './categories/categories.module';
+import { CustomExceptionFilter } from './common/filters';
 import { CommonModule } from './common/common.module';
 
 @Module({

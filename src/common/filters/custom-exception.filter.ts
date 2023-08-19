@@ -5,6 +5,7 @@ import {
   HttpStatus,
   ExceptionFilter,
 } from '@nestjs/common';
+
 import { Errors } from 'src/constants';
 
 @Catch(HttpException)
