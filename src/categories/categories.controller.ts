@@ -33,6 +33,17 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
+  @ApiOperation({ summary: 'Ruta para obtener todas las categorías activas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Todas las categorías activas',
+    isArray: true,
+    type: Category,
+  })
+  @ApiResponse({
+    status: 400,
+    description: Errors.CATEGORIES_NOT_FOUND,
+  })
   @Get()
   findAll() {
     return this.categoriesService.findAll();

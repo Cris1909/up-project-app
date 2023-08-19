@@ -7,20 +7,20 @@ export class Category extends Document {
 
   @ApiProperty({
     example: '64e03066a03320deead383b1',
-    description: 'Category ID',
+    description: 'Id de la categoría',
     nullable: false,
     uniqueItems: true,
   })
   _id: string;
 
   @ApiProperty({
+    example: "Dulces",
+    description: 'Nombre de la categoría',
     uniqueItems: true,
     nullable: false,
     minLength: 3,
-    example: "Dulces"
   })
   @Prop({
-    type: String,
     required: true,
     unique: true,
     index: true,
@@ -30,14 +30,23 @@ export class Category extends Document {
 
   @ApiProperty({
     nullable: true,
-    example: null
+    example: null,
+    description: 'Imagen de la categoría'
   })
   @Prop({
-    type: String,
     trim: true,
     default: null
   })
   img: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Status de la categoría'
+  })
+  @Prop({
+    default: true
+  })
+  active: boolean
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

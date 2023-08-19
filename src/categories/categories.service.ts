@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +15,8 @@ import { Errors } from 'src/constants';
 
 @Injectable()
 export class CategoriesService {
+  private readonly logger = new Logger('CategoriesService');
+
   constructor(
     @InjectModel(Category.name)
     private readonly categoryModel: Model<Category>,
@@ -27,8 +31,13 @@ export class CategoriesService {
     }
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll() {
+    const categories = await this.categoryModel
+      .find({ active: true })
+      .select('-__v');
+    if (!categories || !categories.length)
+      throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
+    return categories;
   }
 
   findOne(id: number) {
@@ -46,6 +55,7 @@ export class CategoriesService {
   private handleExceptions(error: any) {
     if (error.code === 11000)
       throw new BadRequestException(Errors.CATEGORY_ALREADY_EXIST);
+    this.logger.error(error);
     throw new InternalServerErrorException(Errors.SERVER_ERROR);
   }
 }
