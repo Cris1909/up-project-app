@@ -38,14 +38,14 @@ export class CategoriesService {
     return categories;
   }
 
-  async findOne(_id: string, query = { }) {
+  private async findOne(_id: string, query = {}) {
     const category = await this.categoryModel.findOne({ _id, ...query });
     if (!category) throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
     return category;
   }
 
   async update(_id: string, updateCategoryDto: UpdateCategoryDto) {
-    const category = await this.findOne(_id, {active: true});
+    const category = await this.findOne(_id, { active: true });
     try {
       await category.updateOne(updateCategoryDto);
       return { ...category.toJSON(), ...updateCategoryDto };
@@ -54,15 +54,29 @@ export class CategoriesService {
     }
   }
 
-  async deactivate(_id: string) {
+  private async changeActivationStatus(_id: string, active: boolean) {
     const category = await this.findOne(_id);
-    if (!category.active) throw new NotFoundException(Errors.CATEGORY_ALREADY_DELETED);
+    if (category.active === active) {
+      throw new BadRequestException(
+        active
+          ? Errors.CATEGORY_ALREADY_ACTIVE
+          : Errors.CATEGORY_ALREADY_INACTIVE,
+      );
+    }
     try {
-      await category.updateOne({ active: false });
+      await category.updateOne({ active });
       return { success: true };
     } catch (error) {
       this.handleExceptions(error);
     }
+  }
+
+  async deactivate(_id: string) {
+    return this.changeActivationStatus(_id, false);
+  }
+
+  async activate(_id: string) {
+    return this.changeActivationStatus(_id, true);
   }
 
   private handleExceptions(error: any) {

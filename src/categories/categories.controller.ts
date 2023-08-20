@@ -16,7 +16,8 @@ import { ParseMongoIdPipe } from 'src/common/pipes';
 import { Errors } from 'src/constants';
 
 const CREATE_CATEGORY_400 = `${Errors.CATEGORY_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
-const DEACTIVATE_CATEGORY_400 = `${Errors.INVALID_MONGO_ID} | ${Errors.CATEGORY_ALREADY_DELETED}`;
+const DEACTIVATE_CATEGORY_400 = `${Errors.INVALID_MONGO_ID} | ${Errors.CATEGORY_ALREADY_INACTIVE}`;
+const ACTIVATE_CATEGORY_400 = `${Errors.INVALID_MONGO_ID} | ${Errors.CATEGORY_ALREADY_ACTIVE}`;
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -89,5 +90,21 @@ export class CategoriesController {
   @Patch('deactivate/:id')
   deactivate(@Param('id', ParseMongoIdPipe) id: string) {
     return this.categoriesService.deactivate(id);
+  }
+
+  @ApiOperation({ summary: 'Ruta para activar una categoría' })
+  @ApiResponse({
+    status: 200,
+    description: 'Activada correctamente',
+  })
+  @ApiBadRequestResponse({
+    description: ACTIVATE_CATEGORY_400,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.CATEGORIES_NOT_FOUND,
+  })
+  @Patch('activate/:id')
+  activate(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.categoriesService.activate(id);
   }
 }
