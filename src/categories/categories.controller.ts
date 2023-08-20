@@ -51,8 +51,26 @@ export class CategoriesController {
     description: Errors.CATEGORIES_NOT_FOUND,
   })
   @Get()
-  findAll() {
+  findAllActive() {
     return this.categoriesService.findAllActive();
+  }
+
+  @ApiOperation({
+    summary: 'Ruta para obtener todas las categorías existentes',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Todas las categorías (activas - inactivas)',
+    isArray: true,
+    type: Category,
+  })
+  @ApiNotFoundResponse({
+    status: 404,
+    description: Errors.CATEGORIES_NOT_FOUND,
+  })
+  @Get('all-categories')
+  findAll() {
+    return this.categoriesService.findAll();
   }
 
   @ApiOperation({ summary: 'Ruta para actualizar una categoría - solo nombre' })

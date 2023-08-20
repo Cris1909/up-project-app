@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Category } from './entities/category.entity';
@@ -22,7 +22,7 @@ export class CategoriesService {
     private readonly categoryModel: Model<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     try {
       const category = await this.categoryModel.create(createCategoryDto);
       return category;
@@ -31,21 +31,29 @@ export class CategoriesService {
     }
   }
 
-  async findAllActive() {
-    const categories = await this.categoryModel.find({ active: true });
+  private async findMany(query: FilterQuery<Category>): Promise<Category[]> {
+    const categories = await this.categoryModel.find(query);
     if (!categories || !categories.length)
       throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
     return categories;
   }
 
-  private async findOne(_id: string, query = {}) {
-    const category = await this.categoryModel.findOne({ _id, ...query });
+  async findAll() {
+    return this.findMany({});
+  }
+
+  async findAllActive() {
+    return this.findMany({ active: true });
+  }
+
+  private async findOne(query: FilterQuery<Category>) {
+    const category = await this.categoryModel.findOne(query);
     if (!category) throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
     return category;
   }
 
   async update(_id: string, updateCategoryDto: UpdateCategoryDto) {
-    const category = await this.findOne(_id, { active: true });
+    const category = await this.findOne({ _id, active: true });
     try {
       await category.updateOne(updateCategoryDto);
       return { ...category.toJSON(), ...updateCategoryDto };
@@ -55,7 +63,7 @@ export class CategoriesService {
   }
 
   private async changeActivationStatus(_id: string, active: boolean) {
-    const category = await this.findOne(_id);
+    const category = await this.findOne({ _id });
     if (category.active === active) {
       throw new BadRequestException(
         active
