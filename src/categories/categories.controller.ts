@@ -14,6 +14,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 import { Errors } from 'src/constants';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
 const createCategory400 = `${Errors.CATEGORY_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
 
@@ -46,19 +47,29 @@ export class CategoriesController {
   })
   @Get()
   findAll() {
-    return this.categoriesService.findAll();
+    return this.categoriesService.findAllActive();
   }
 
+  @ApiOperation({ summary: 'Ruta para actualizar una categoría - solo nombre'})
+  @ApiResponse({
+    status: 200,
+    description: 'Actualizado correctamente',
+    type: Category,
+  })
+  @ApiResponse({
+    status: 400,
+    description: Errors.CATEGORIES_NOT_FOUND,
+  })
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+    return this.categoriesService.remove(id);
   }
 }

@@ -31,24 +31,30 @@ export class CategoriesService {
     }
   }
 
-  async findAll() {
-    const categories = await this.categoryModel
-      .find({ active: true })
-      .select('-__v');
+  async findAllActive() {
+    const categories = await this.categoryModel.find({ active: true });
     if (!categories || !categories.length)
       throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
     return categories;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(_id: string) {
+    const category = await this.categoryModel.findOne({ _id, active: true });
+    if (!category) throw new NotFoundException(Errors.CATEGORIES_NOT_FOUND);
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(_id: string, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.findOne(_id);
+    try {
+      await category.updateOne(updateCategoryDto);
+      return { ...category.toJSON(), ...updateCategoryDto };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} category`;
   }
 
