@@ -1,22 +1,22 @@
+import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+import { Category } from './entities/category.entity';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Category } from './entities/category.entity';
+import { ParseMongoIdPipe } from 'src/common/pipes';
 import { Errors } from 'src/constants';
-import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
-const createCategory400 = `${Errors.CATEGORY_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
+const CREATE_CATEGORY_400 = `${Errors.CATEGORY_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
+const DEACTIVATE_CATEGORY_400 = `${Errors.INVALID_MONGO_ID} | ${Errors.CATEGORY_ALREADY_DELETED}`;
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -25,10 +25,14 @@ export class CategoriesController {
 
   @Post()
   @ApiOperation({ summary: 'Ruta para crear una categoría' })
-  @ApiResponse({ status: 201, description: 'Categoría creada', type: Category })
-  @ApiResponse({
+  @ApiCreatedResponse({
+    status: 201,
+    description: 'Categoría creada',
+    type: Category,
+  })
+  @ApiBadRequestResponse({
     status: 400,
-    description: createCategory400,
+    description: CREATE_CATEGORY_400,
   })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
@@ -41,8 +45,8 @@ export class CategoriesController {
     isArray: true,
     type: Category,
   })
-  @ApiResponse({
-    status: 400,
+  @ApiNotFoundResponse({
+    status: 404,
     description: Errors.CATEGORIES_NOT_FOUND,
   })
   @Get()
@@ -50,14 +54,17 @@ export class CategoriesController {
     return this.categoriesService.findAllActive();
   }
 
-  @ApiOperation({ summary: 'Ruta para actualizar una categoría - solo nombre'})
+  @ApiOperation({ summary: 'Ruta para actualizar una categoría - solo nombre' })
   @ApiResponse({
     status: 200,
     description: 'Actualizado correctamente',
     type: Category,
   })
-  @ApiResponse({
-    status: 400,
+  @ApiBadRequestResponse({
+    description: Errors.INVALID_MONGO_ID,
+  })
+  @ApiNotFoundResponse({
+    status: 404,
     description: Errors.CATEGORIES_NOT_FOUND,
   })
   @Patch(':id')
@@ -68,8 +75,19 @@ export class CategoriesController {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(id);
+  @ApiOperation({ summary: 'Ruta para desactivar una categoría' })
+  @ApiResponse({
+    status: 200,
+    description: 'Desactivada correctamente',
+  })
+  @ApiBadRequestResponse({
+    description: DEACTIVATE_CATEGORY_400,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.CATEGORIES_NOT_FOUND,
+  })
+  @Patch('deactivate/:id')
+  deactivate(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.categoriesService.deactivate(id);
   }
 }

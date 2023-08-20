@@ -5,6 +5,8 @@ export enum Errors {
 
   CATEGORY_ALREADY_EXIST = 'errors.categories.already_exist',
   CATEGORIES_NOT_FOUND = 'errors.categories.not_found',
+  CATEGORY_ALREADY_DELETED = 'errors.categories.already_deleted',
+  CATEGORY_ALREADY_ACTIVE = 'errors.categories.already_active',
  
   NAME_NOT_SEND = 'errors.name.not_send',
   NAME_TOO_SHORT = 'errors.name.too_short',
