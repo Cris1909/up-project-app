@@ -3,6 +3,7 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -13,7 +14,7 @@ import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 
 import { ParseMongoIdPipe } from 'src/common/pipes';
-import { Errors } from 'src/constants';
+import { Errors } from 'src/enum';
 
 const CREATE_SUBJECT_400 = `${Errors.SUBJECT_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
 
@@ -22,37 +23,34 @@ const CREATE_SUBJECT_400 = `${Errors.SUBJECT_ALREADY_EXIST} | ${Errors.NAME_NOT_
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
-  @Post()
+  @Post('create')
   @ApiOperation({ summary: 'Ruta para crear una materia' })
   @ApiCreatedResponse({
-    status: 201,
     description: 'Materia creada',
     type: Subject,
   })
   @ApiBadRequestResponse({
-    status: 400,
     description: CREATE_SUBJECT_400,
   })
   create(@Body() createSubjectDto: CreateSubjectDto) {
     return this.subjectsService.create(createSubjectDto);
   }
 
+  @Get('list-active')
   @ApiOperation({ summary: 'Ruta para obtener todas las materias activas' })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Todas las materias activas',
     isArray: true,
     type: Subject,
   })
   @ApiNotFoundResponse({
-    status: 404,
     description: Errors.SUBJECTS_NOT_FOUND,
   })
-  @Get()
   findAllActive() {
     return this.subjectsService.findAllActive();
   }
 
+  @Get('list-all')
   @ApiOperation({
     summary: 'Ruta para obtener todas las materias existentes',
   })
@@ -66,11 +64,11 @@ export class SubjectsController {
     status: 404,
     description: Errors.SUBJECTS_NOT_FOUND,
   })
-  @Get('list-all')
   findAll() {
     return this.subjectsService.findAll();
   }
 
+  @Patch(['update/:id'])
   @ApiOperation({ summary: 'Ruta para actualizar una materia' })
   @ApiResponse({
     status: 200,
@@ -84,7 +82,6 @@ export class SubjectsController {
     status: 404,
     description: Errors.SUBJECTS_NOT_FOUND,
   })
-  @Patch(':id')
   update(
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateSubjectDto: UpdateSubjectDto,

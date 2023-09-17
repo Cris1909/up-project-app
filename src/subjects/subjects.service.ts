@@ -12,11 +12,11 @@ import { Subject } from './entities/subject.entity';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 
-import { Errors } from 'src/constants';
+import { Errors } from 'src/enum';
 
 @Injectable()
 export class SubjectsService {
-  private readonly logger = new Logger('SubjectsService');
+  private readonly logger = new Logger(SubjectsService.name);
 
   constructor(
     @InjectModel(Subject.name)
@@ -33,18 +33,18 @@ export class SubjectsService {
   }
 
   private async findMany(query: FilterQuery<Subject>): Promise<Subject[]> {
-    const subjects = await this.subjectModel.find(query);
+    const subjects = await this.subjectModel.find(query).select('-__v');
     if (!subjects || !subjects.length)
       throw new NotFoundException(Errors.SUBJECTS_NOT_FOUND);
     return subjects;
   }
 
   async findAll() {
-    return this.findMany({});
+    return await this.findMany({});
   }
 
   async findAllActive() {
-    return this.findMany({ isActive: true });
+    return await this.findMany({ isActive: true });
   }
 
   private async findOne(query: FilterQuery<Subject>) {
@@ -54,7 +54,7 @@ export class SubjectsService {
   }
 
   async update(_id: string, updateSubjectDto: UpdateSubjectDto) {
-    const subject = await this.findOne({ _id, isActive: true });
+    const subject = await this.findOne({ _id });
     try {
       await subject.updateOne(updateSubjectDto);
       return { ...subject.toJSON(), ...updateSubjectDto };
