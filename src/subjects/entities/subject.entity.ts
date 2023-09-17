@@ -3,19 +3,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 
 @Schema()
-export class Category extends Document {
+export class Subject extends Document {
 
   @ApiProperty({
     example: '64e03066a03320deead383b1',
-    description: 'Id de la categoría',
+    description: 'Id de la materia',
     nullable: false,
     uniqueItems: true,
   })
   _id: string;
 
   @ApiProperty({
-    example: "Dulces",
-    description: 'Nombre de la categoría',
+    example: "Ingles",
+    description: 'Nombre de la materia',
     uniqueItems: true,
     nullable: false,
     minLength: 3,
@@ -29,24 +29,13 @@ export class Category extends Document {
   name: string;
 
   @ApiProperty({
-    nullable: true,
-    example: null,
-    description: 'Imagen de la categoría'
-  })
-  @Prop({
-    trim: true,
-    default: null
-  })
-  img: string;
-
-  @ApiProperty({
+    description: 'Estado de la materia',
     example: true,
-    description: 'Status de la categoría'
   })
   @Prop({
     default: true
   })
-  active: boolean
+  isActive: boolean
 }
 
-export const CategorySchema = SchemaFactory.createForClass(Category);
+export const SubjectSchema = SchemaFactory.createForClass(Subject);
