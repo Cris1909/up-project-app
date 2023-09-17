@@ -6,7 +6,7 @@ import {
   ExceptionFilter,
 } from '@nestjs/common';
 
-import { Errors } from 'src/constants';
+import { Errors } from 'src/enum';
 
 @Catch(HttpException)
 export class CustomExceptionFilter implements ExceptionFilter {
