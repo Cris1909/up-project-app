@@ -13,6 +13,8 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { Errors } from 'src/enum';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +31,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   private async findOne(query: FilterQuery<User>) {
@@ -45,10 +48,17 @@ export class AuthService {
         password: bcrypt.hashSync(password, 10),
       });
 
-      user.save()
+      const token = this.getJwtToken({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        phoneNumber: user.phoneNumber,
+        roles: user.roles,
+      });
 
       return {
-        payload: user
+        payload: user,
+        token,
       };
     } catch (error: any) {
       this.handleExceptions(error);
@@ -67,9 +77,23 @@ export class AuthService {
     if (!user || !bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException(Errors.INVALID_CREDENTIALS);
 
+    const token = this.getJwtToken({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      phoneNumber: user.phoneNumber,
+      roles: user.roles,
+    });
+
     return {
       payload: user,
+      token,
     };
+  }
+
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 
   private handleExceptions(error: any) {
