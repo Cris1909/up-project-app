@@ -9,7 +9,7 @@ import { EnvConfiguration } from './config';
 import { SubjectsModule } from './subjects/subjects.module';
 import { CustomExceptionFilter } from './common/filters';
 import { CommonModule } from './common/common.module';
-import { RolesModule } from './roles/roles.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,10 +20,11 @@ import { RolesModule } from './roles/roles.module';
     MongooseModule.forRoot(process.env.MONGO_DB),
 
     CommonModule,
+    
+    AuthModule, 
 
     SubjectsModule,
     
-    RolesModule,
   ],
   controllers: [AppController],
   providers: [

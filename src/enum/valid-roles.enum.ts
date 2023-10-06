@@ -1,6 +1,6 @@
 export enum ValidRoles {
   ADMIN = 'admin',
+  USER = 'user',
   TEACHER = 'teacher',
-  PARENT = 'parent',
-  STUDENT = 'student',
+  STUDENT = 'student'
 }
