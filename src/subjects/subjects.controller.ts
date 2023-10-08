@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -13,8 +14,9 @@ import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 
 import { ParseMongoIdPipe } from 'src/common/pipes';
-import { Errors } from 'src/enum';
+import { Errors, ValidRoles } from 'src/enum';
 import { errorsToString } from 'src/helpers';
+import { Auth } from 'src/auth/decorators';
 
 const CREATE_SUBJECT_400 = errorsToString(
   Errors.SUBJECT_ALREADY_EXIST,
@@ -28,6 +30,7 @@ export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Post('create')
+  @Auth(ValidRoles.TEACHER)
   @ApiOperation({ summary: 'Ruta para crear una materia' })
   @ApiCreatedResponse({
     description: 'Materia creada',

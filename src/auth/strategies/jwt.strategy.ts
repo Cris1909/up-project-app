@@ -27,9 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const user = await this.userModel.findById(_id);
 
-    if (!user || !user.isActive)
+    if (!user || !user.isActive) {
       throw new UnauthorizedException(Errors.INVALID_TOKEN);
-
+    }
     return user;
   }
 }
