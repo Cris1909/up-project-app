@@ -1,0 +1,1 @@
+export const rolesRequired = (...roles: string[]) => 'Rol necesario: ' + roles.join(' | ')

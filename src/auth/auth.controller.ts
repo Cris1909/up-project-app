@@ -20,6 +20,8 @@ import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { Errors } from 'src/enum';
 import { errorsToString } from 'src/helpers';
+import { Auth, GetUser } from './decorators';
+import { SessionResponse } from './responses';
 
 const CREATE_USER_400 = errorsToString(
   Errors.EMAIL_INVALID,
@@ -45,7 +47,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Ruta para crear un usuario' })
   @ApiCreatedResponse({
     description: 'Usuario creado',
-    type: User,
+    type: SessionResponse,
   })
   @ApiBadRequestResponse({
     description: CREATE_USER_400,
@@ -58,12 +60,23 @@ export class AuthController {
   @ApiOperation({ summary: 'Ruta para iniciar sesión' })
   @ApiOkResponse({
     description: 'Sesión iniciada correctamente',
-    type: User,
+    type: SessionResponse,
   })
   @ApiBadRequestResponse({
     description: LOGIN_400,
   })
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Get('validate-token')
+  @Auth()
+  @ApiOperation({ summary: 'Ruta para validar el token' })
+  @ApiOkResponse({
+    description: 'Sesión iniciada correctamente',
+    type: SessionResponse,
+  })
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkAuthStatus(user);
   }
 }

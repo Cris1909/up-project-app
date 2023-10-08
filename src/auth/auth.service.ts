@@ -48,13 +48,7 @@ export class AuthService {
         password: bcrypt.hashSync(password, 10),
       });
 
-      const token = this.getJwtToken({
-        _id: user._id,
-        email: user.email,
-        name: user.name,
-        phoneNumber: user.phoneNumber,
-        roles: user.roles,
-      });
+      const token = this.getJwtToken(user);
 
       return {
         payload: user,
@@ -77,13 +71,7 @@ export class AuthService {
     if (!user || !bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException(Errors.INVALID_CREDENTIALS);
 
-    const token = this.getJwtToken({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      phoneNumber: user.phoneNumber,
-      roles: user.roles,
-    });
+    const token = this.getJwtToken(user);
 
     return {
       payload: user,
@@ -91,8 +79,21 @@ export class AuthService {
     };
   }
 
-  private getJwtToken(payload: JwtPayload) {
-    const token = this.jwtService.sign(payload);
+  async checkAuthStatus(user: User) {
+    return {
+      payload: user,
+      token: this.getJwtToken(user),
+    };
+  }
+
+  private getJwtToken({ _id, email, name, phoneNumber, roles }: JwtPayload) {
+    const token = this.jwtService.sign({
+      _id,
+      email,
+      name,
+      phoneNumber,
+      roles,
+    });
     return token;
   }
 

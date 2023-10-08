@@ -27,7 +27,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('UP Project API')
+    .setTitle('Lito Students API')
     .setDescription('Esta es la documentación del proyecto')
     .setVersion('1.0')
     .addBearerAuth(undefined, 'defaultBearerAuth')

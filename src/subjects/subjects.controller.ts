@@ -15,7 +15,7 @@ import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { Errors, ValidRoles } from 'src/enum';
-import { errorsToString } from 'src/helpers';
+import { errorsToString, rolesRequired } from 'src/helpers';
 import { Auth } from 'src/auth/decorators';
 
 const CREATE_SUBJECT_400 = errorsToString(
@@ -30,8 +30,11 @@ export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Post('create')
-  @Auth(ValidRoles.TEACHER)
-  @ApiOperation({ summary: 'Ruta para crear una materia' })
+  @Auth(ValidRoles.ADMIN)
+  @ApiOperation({
+    summary: 'Ruta para crear una materia',
+    description: rolesRequired(ValidRoles.ADMIN),
+  })
   @ApiCreatedResponse({
     description: 'Materia creada',
     type: Subject,
@@ -44,7 +47,11 @@ export class SubjectsController {
   }
 
   @Get('list-active')
-  @ApiOperation({ summary: 'Ruta para obtener todas las materias activas' })
+  @Auth(ValidRoles.USER)
+  @ApiOperation({
+    summary: 'Ruta para obtener todas las materias activas',
+    description: rolesRequired(ValidRoles.USER),
+  })
   @ApiOkResponse({
     description: 'Todas las materias activas',
     isArray: true,
@@ -58,8 +65,10 @@ export class SubjectsController {
   }
 
   @Get('list-all')
+  @Auth(ValidRoles.ADMIN)
   @ApiOperation({
     summary: 'Ruta para obtener todas las materias existentes',
+    description: rolesRequired(ValidRoles.ADMIN),
   })
   @ApiOkResponse({
     description: 'Todas las materias (activas - inactivas)',
@@ -75,7 +84,11 @@ export class SubjectsController {
   }
 
   @Patch(['update/:id'])
-  @ApiOperation({ summary: 'Ruta para actualizar una materia' })
+  @Auth(ValidRoles.ADMIN)
+  @ApiOperation({
+    summary: 'Ruta para actualizar una materia',
+    description: rolesRequired(ValidRoles.ADMIN),
+  })
   @ApiOkResponse({
     description: 'Actualizado correctamente',
     type: Subject,
