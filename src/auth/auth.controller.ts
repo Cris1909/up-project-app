@@ -19,10 +19,23 @@ import { User } from './entities';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { Errors } from 'src/enum';
+import { errorsToString } from 'src/helpers';
 
-const CREATE_USER_400 = `${Errors.EMAIL_INVALID} | ${Errors.PASSWORD_INVALID} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT} | ${Errors.NAME_NOT_SEND} | ${Errors.PHONE_NUMBER_INVALID} | ${Errors.EMAIL_ALREADY_EXIST} | ${Errors.PHONE_NUMBER_ALREADY_EXIST}`;
-const LOGIN_400 = `${Errors.EMAIL_INVALID} | ${Errors.PASSWORD_INVALID} | ${Errors.INVALID_CREDENTIALS}`;
-
+const CREATE_USER_400 = errorsToString(
+  Errors.EMAIL_INVALID,
+  Errors.PASSWORD_INVALID,
+  Errors.NAME_MUST_BE_STRING,
+  Errors.NAME_TOO_SHORT,
+  Errors.NAME_NOT_SEND,
+  Errors.PHONE_NUMBER_INVALID,
+  Errors.EMAIL_ALREADY_EXIST,
+  Errors.PHONE_NUMBER_ALREADY_EXIST,
+);
+const LOGIN_400 = errorsToString(
+  Errors.EMAIL_INVALID,
+  Errors.PASSWORD_INVALID,
+  Errors.INVALID_CREDENTIALS,
+);
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {

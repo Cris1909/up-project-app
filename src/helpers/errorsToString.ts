@@ -1,0 +1,1 @@
+export const errorsToString = (...errors: string[]) => errors.join(' | ')

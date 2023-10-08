@@ -5,7 +5,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -15,9 +14,14 @@ import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { Errors } from 'src/enum';
+import { errorsToString } from 'src/helpers';
 
-const CREATE_SUBJECT_400 = `${Errors.SUBJECT_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
-
+const CREATE_SUBJECT_400 = errorsToString(
+  Errors.SUBJECT_ALREADY_EXIST,
+  Errors.NAME_NOT_SEND,
+  Errors.NAME_MUST_BE_STRING,
+  Errors.NAME_TOO_SHORT,
+);
 @ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectsController {
@@ -85,5 +89,4 @@ export class SubjectsController {
   ) {
     return this.subjectsService.update(id, updateSubjectDto);
   }
-
 }
