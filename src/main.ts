@@ -27,13 +27,31 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('UP Project API')
+    .setTitle('Lito Students API')
     .setDescription('Esta es la documentación del proyecto')
     .setVersion('1.0')
+    .addBearerAuth(undefined, 'defaultBearerAuth')
     .build();
 
+  const options = {
+    swaggerOptions: {
+      authAction: {
+        defaultBearerAuth: {
+          name: 'defaultBearerAuth',
+          schema: {
+            description: 'Autenticación por medio de JWT como bearer auth',
+            type: 'http',
+            in: 'header',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+    },
+  };
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api-docs', app, document);
+  SwaggerModule.setup('/api-docs', app, document, options);
 
   await app.listen(process.env.PORT);
   logger.log(`App running on port ${process.env.PORT}`);

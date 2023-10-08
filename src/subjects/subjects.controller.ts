@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -14,17 +14,27 @@ import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 
 import { ParseMongoIdPipe } from 'src/common/pipes';
-import { Errors } from 'src/enum';
+import { Errors, ValidRoles } from 'src/enum';
+import { errorsToString, rolesRequired } from 'src/helpers';
+import { Auth } from 'src/auth/decorators';
 
-const CREATE_SUBJECT_400 = `${Errors.SUBJECT_ALREADY_EXIST} | ${Errors.NAME_NOT_SEND} | ${Errors.NAME_MUST_BE_STRING} | ${Errors.NAME_TOO_SHORT}`;
-
+const CREATE_SUBJECT_400 = errorsToString(
+  Errors.SUBJECT_ALREADY_EXIST,
+  Errors.NAME_NOT_SEND,
+  Errors.NAME_MUST_BE_STRING,
+  Errors.NAME_TOO_SHORT,
+);
 @ApiTags('Subjects')
 @Controller('subjects')
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Post('create')
-  @ApiOperation({ summary: 'Ruta para crear una materia' })
+  @Auth(ValidRoles.ADMIN)
+  @ApiOperation({
+    summary: 'Ruta para crear una materia',
+    description: rolesRequired(ValidRoles.ADMIN),
+  })
   @ApiCreatedResponse({
     description: 'Materia creada',
     type: Subject,
@@ -37,7 +47,11 @@ export class SubjectsController {
   }
 
   @Get('list-active')
-  @ApiOperation({ summary: 'Ruta para obtener todas las materias activas' })
+  @Auth(ValidRoles.USER)
+  @ApiOperation({
+    summary: 'Ruta para obtener todas las materias activas',
+    description: rolesRequired(ValidRoles.USER),
+  })
   @ApiOkResponse({
     description: 'Todas las materias activas',
     isArray: true,
@@ -51,11 +65,12 @@ export class SubjectsController {
   }
 
   @Get('list-all')
+  @Auth(ValidRoles.ADMIN)
   @ApiOperation({
     summary: 'Ruta para obtener todas las materias existentes',
+    description: rolesRequired(ValidRoles.ADMIN),
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Todas las materias (activas - inactivas)',
     isArray: true,
     type: Subject,
@@ -69,9 +84,12 @@ export class SubjectsController {
   }
 
   @Patch(['update/:id'])
-  @ApiOperation({ summary: 'Ruta para actualizar una materia' })
-  @ApiResponse({
-    status: 200,
+  @Auth(ValidRoles.ADMIN)
+  @ApiOperation({
+    summary: 'Ruta para actualizar una materia',
+    description: rolesRequired(ValidRoles.ADMIN),
+  })
+  @ApiOkResponse({
     description: 'Actualizado correctamente',
     type: Subject,
   })
@@ -79,7 +97,6 @@ export class SubjectsController {
     description: Errors.INVALID_MONGO_ID,
   })
   @ApiNotFoundResponse({
-    status: 404,
     description: Errors.SUBJECTS_NOT_FOUND,
   })
   update(
@@ -88,5 +105,4 @@ export class SubjectsController {
   ) {
     return this.subjectsService.update(id, updateSubjectDto);
   }
-
 }
