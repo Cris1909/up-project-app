@@ -28,6 +28,8 @@ export enum Errors {
 
   DATE_INVALID = 'errors.date.invalid',
 
-  HOURS_INVALID = 'errors.hours.invalid'
+  HOURS_INVALID = 'errors.hours.invalid',
+
+  AVAILABLE_SCHEDULE_EXIST = 'errors.available_schedule.already_exist',
  
 }

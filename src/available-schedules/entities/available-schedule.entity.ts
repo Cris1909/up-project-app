@@ -26,15 +26,20 @@ export class AvailableSchedule extends Document {
   @ApiProperty({
     example: '2023-10-09T00:00:00.000Z',
     description: 'Fecha del horario disponible (debe comenzar a las 00:00)',
+    nullable: false,
+    uniqueItems: true,
   })
-  @Prop({ type: Date, required: true })
+  @Prop({ type: Date, required: true, index: true, unique: true })
   date: Date;
 
   @ApiProperty({
     example: [7, 8, 9],
     description: 'Horas del dia que tiene disponibles',
+    nullable: false,
+    minimum: 0,
+    maximum: 23,
   })
-  @Prop({ type: Array<Number> })
+  @Prop({ type: Array<Number>, min: 0, max: 23, default: [] })
   hours: number[];
 }
 

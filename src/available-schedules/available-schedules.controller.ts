@@ -13,6 +13,7 @@ import { CreateAvailableScheduleDto, UpdateAvailableScheduleDto } from './dto';
 
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/enum';
+import { ObjectId } from 'mongoose';
 
 @Controller('available-schedules')
 export class AvailableSchedulesController {
@@ -24,7 +25,7 @@ export class AvailableSchedulesController {
   @Auth(ValidRoles.TEACHER)
   create(
     @Body() createAvailableScheduleDto: CreateAvailableScheduleDto,
-    @GetUser('_id') idTeacher: string,
+    @GetUser('id') idTeacher: string,
   ) {
     return this.availableSchedulesService.create(createAvailableScheduleDto, idTeacher);
   }
