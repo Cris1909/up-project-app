@@ -10,6 +10,7 @@ import { SubjectsModule } from './subjects/subjects.module';
 import { CustomExceptionFilter } from './common/filters';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
+import { AvailableSchedulesModule } from './available-schedules/available-schedules.module';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { AuthModule } from './auth/auth.module';
     
     AuthModule, 
 
-    SubjectsModule,
+    SubjectsModule, 
+    
+    AvailableSchedulesModule,
     
   ],
   controllers: [AppController],

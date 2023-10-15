@@ -25,4 +25,9 @@ export enum Errors {
   PHONE_NUMBER_INVALID = 'errors.phone.invalid',
 
   INVALID_TOKEN = 'errors.token.invalid',
+
+  DATE_INVALID = 'errors.date.invalid',
+
+  HOURS_INVALID = 'errors.hours.invalid'
+ 
 }
