@@ -31,5 +31,5 @@ export enum Errors {
   HOURS_INVALID = 'errors.hours.invalid',
 
   AVAILABLE_SCHEDULE_EXIST = 'errors.available_schedule.already_exist',
- 
+  AVAILABLE_SCHEDULE_NOT_FOUND = 'errors.available_schedule.not_found',
 }

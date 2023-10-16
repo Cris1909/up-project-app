@@ -13,7 +13,6 @@ import { CreateAvailableScheduleDto, UpdateAvailableScheduleDto } from './dto';
 
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/enum';
-import { ObjectId } from 'mongoose';
 
 @Controller('available-schedules')
 export class AvailableSchedulesController {
@@ -30,29 +29,30 @@ export class AvailableSchedulesController {
     return this.availableSchedulesService.create(createAvailableScheduleDto, idTeacher);
   }
 
-  @Get()
-  findAll() {
-    return this.availableSchedulesService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.availableSchedulesService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.availableSchedulesService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.availableSchedulesService.findOne(+id);
+  // }
 
-  @Patch(':id')
+  @Patch('update/:id')
+  @Auth(ValidRoles.TEACHER)
   update(
     @Param('id') id: string,
     @Body() updateAvailableScheduleDto: UpdateAvailableScheduleDto,
   ) {
     return this.availableSchedulesService.update(
-      +id,
+      id,
       updateAvailableScheduleDto,
     );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.availableSchedulesService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.availableSchedulesService.remove(+id);
+  // }
 }

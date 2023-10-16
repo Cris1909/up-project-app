@@ -3,11 +3,12 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateAvailableScheduleDto } from './dto/create-available-schedule.dto';
 import { UpdateAvailableScheduleDto } from './dto/update-available-schedule.dto';
-import { getStartOfDay, getUTCHours } from 'src/helpers';
-import { Model, ObjectId } from 'mongoose';
+import { getStartOfDay, getUTCHours, isSameDay } from 'src/helpers';
+import { FilterQuery, Model, ObjectId } from 'mongoose';
 import { Errors } from 'src/enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { AvailableSchedule } from './entities';
@@ -38,10 +39,10 @@ export class AvailableSchedulesService {
     const { date, hours } = createAvailableScheduleDto;
 
     // Valida que las horas sean posteriores a la hora del dia que se crea
-    if (new Date().getTime() > date.getTime()) this.hoursValidator(date, hours);
+    if (isSameDay(new Date(), date)) this.hoursValidator(date, hours);
 
     // Filtra las horas que se repiten
-    const filteredHours = this.filterRepeatHours(hours);
+    const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
 
     // Fecha en la que inicia el dia ( horas, minutos y segundos en 0 )
     const startOfDay = getStartOfDay(date);
@@ -62,12 +63,30 @@ export class AvailableSchedulesService {
     return `This action returns all availableSchedules`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} availableSchedule`;
+  private async findOne(query: FilterQuery<AvailableSchedule>) {
+    const availableSchedule = await this.availableScheduleModel.findOne(query);
+    if (!availableSchedule)
+      throw new NotFoundException(Errors.AVAILABLE_SCHEDULE_NOT_FOUND);
+    return availableSchedule;
   }
 
-  update(id: number, updateAvailableScheduleDto: UpdateAvailableScheduleDto) {
-    return `This action updates a #${id} availableSchedule`;
+  async update(
+    _id: string,
+    updateAvailableScheduleDto: UpdateAvailableScheduleDto,
+  ) {
+    const availableSchedule = await this.findOne({ _id });
+
+    const { hours } = updateAvailableScheduleDto;
+
+    // Filtra las horas que se repiten
+    const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
+
+    try {
+      await availableSchedule.updateOne({ hours: filteredHours });
+      return { ...availableSchedule.toJSON(), ...updateAvailableScheduleDto };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
   remove(id: number) {
