@@ -5,13 +5,18 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateAvailableScheduleDto } from './dto/create-available-schedule.dto';
-import { UpdateAvailableScheduleDto } from './dto/update-available-schedule.dto';
-import { getStartOfDay, getUTCHours, isSameDay } from 'src/helpers';
-import { FilterQuery, Model, ObjectId } from 'mongoose';
-import { Errors } from 'src/enum';
 import { InjectModel } from '@nestjs/mongoose';
+import { FilterQuery, Model, ObjectId } from 'mongoose';
+
 import { AvailableSchedule } from './entities';
+import { CreateAvailableScheduleDto, UpdateAvailableScheduleDto } from './dto';
+import {
+  getStartOfDay,
+  getUTCHours,
+  isPreviousDay,
+  isSameDay,
+} from 'src/helpers';
+import { Errors } from 'src/enum';
 
 @Injectable()
 export class AvailableSchedulesService {
@@ -34,7 +39,7 @@ export class AvailableSchedulesService {
 
   async create(
     createAvailableScheduleDto: CreateAvailableScheduleDto,
-    idTeacher: string,
+    teacherId: string,
   ) {
     const { date, hours } = createAvailableScheduleDto;
 
@@ -49,7 +54,7 @@ export class AvailableSchedulesService {
 
     try {
       const availableSchedule = await this.availableScheduleModel.create({
-        idTeacher,
+        teacherId,
         date: startOfDay,
         hours: filteredHours,
       });
@@ -75,6 +80,11 @@ export class AvailableSchedulesService {
     updateAvailableScheduleDto: UpdateAvailableScheduleDto,
   ) {
     const availableSchedule = await this.findOne({ _id });
+
+    const { date } = availableSchedule;
+
+    if (isPreviousDay(date))
+      throw new BadRequestException(Errors.DATE_IS_PREVIOUS);
 
     const { hours } = updateAvailableScheduleDto;
 

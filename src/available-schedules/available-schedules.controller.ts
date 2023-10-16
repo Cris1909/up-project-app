@@ -24,9 +24,12 @@ export class AvailableSchedulesController {
   @Auth(ValidRoles.TEACHER)
   create(
     @Body() createAvailableScheduleDto: CreateAvailableScheduleDto,
-    @GetUser('id') idTeacher: string,
+    @GetUser('id') teacherId: string,
   ) {
-    return this.availableSchedulesService.create(createAvailableScheduleDto, idTeacher);
+    return this.availableSchedulesService.create(
+      createAvailableScheduleDto,
+      teacherId,
+    );
   }
 
   // @Get()

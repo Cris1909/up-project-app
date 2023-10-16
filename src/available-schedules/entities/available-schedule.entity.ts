@@ -1,9 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import mongoose, { Document } from 'mongoose';
-import { User } from 'src/auth/entities';
+import mongoose, {
+  AggregatePaginateModel,
+  Document,
+  PaginateModel,
+} from 'mongoose';
 
+import * as mongoosePaginate from 'mongoose-paginate-v2';
+var aggregatePaginate = require('mongoose-aggregate-paginate-v2');
+
+import { User } from 'src/auth/entities';
 @Schema()
 export class AvailableSchedule extends Document {
   @ApiProperty({
@@ -34,14 +41,21 @@ export class AvailableSchedule extends Document {
 
   @ApiProperty({
     example: [7, 8, 9],
-    description: 'Horas del dia que tiene disponibles',
+    description: 'Horas del día que tiene disponibles',
     nullable: false,
     minimum: 0,
     maximum: 23,
   })
-  @Prop({ type: Array<Number>, min: 0, max: 23, default: [] })
+  @Prop({ type: [Number], min: 0, max: 23, default: [] })
   hours: number[];
 }
 
 export const AvailableScheduleSchema =
   SchemaFactory.createForClass(AvailableSchedule);
+
+AvailableScheduleSchema.plugin(mongoosePaginate);
+AvailableScheduleSchema.plugin(aggregatePaginate);
+
+export interface AvailableScheduleDocument
+  extends PaginateModel<AvailableSchedule>,
+    AggregatePaginateModel<AvailableSchedule> {}

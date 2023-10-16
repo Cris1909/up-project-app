@@ -26,5 +26,8 @@ export const dateValidator = (date: Date) => {
   if (date < startOfDay) throw new BadRequestException(Errors.DATE_INVALID);
 };
 
+export const isPreviousDay = (date: Date) =>
+  getStartOfDay(date).getTime() < getStartOfDay(new Date()).getTime();
+
 export const isSameDay = (date1: Date, date2: Date) =>
   getStartOfDay(date1).getTime() === getStartOfDay(date2).getTime();
