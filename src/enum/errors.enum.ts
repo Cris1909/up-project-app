@@ -25,4 +25,13 @@ export enum Errors {
   PHONE_NUMBER_INVALID = 'errors.phone.invalid',
 
   INVALID_TOKEN = 'errors.token.invalid',
+
+  DATE_INVALID_FORMAT = 'errors.date.invalid_format',
+  DATE_INVALID = 'errors.date.invalid',
+  DATE_IS_PREVIOUS = 'errors.date.is_previous',
+
+  HOURS_INVALID = 'errors.hours.invalid',
+
+  AVAILABLE_SCHEDULE_EXIST = 'errors.available_schedule.already_exist',
+  AVAILABLE_SCHEDULE_NOT_FOUND = 'errors.available_schedule.not_found',
 }
