@@ -1,22 +1,15 @@
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  BadRequestException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, ObjectId } from 'mongoose';
-
+import { PaginateModel, FilterQuery } from 'mongoose';
 import { AvailableSchedule } from './entities';
 import { CreateAvailableScheduleDto, UpdateAvailableScheduleDto } from './dto';
-import {
-  getStartOfDay,
-  getUTCHours,
-  isPreviousDay,
-  isSameDay,
-} from 'src/helpers';
 import { Errors } from 'src/enum';
+import { DateHelper } from 'src/helpers';
 
 @Injectable()
 export class AvailableSchedulesService {
@@ -24,18 +17,9 @@ export class AvailableSchedulesService {
 
   constructor(
     @InjectModel(AvailableSchedule.name)
-    private readonly availableScheduleModel: Model<AvailableSchedule>,
+    private readonly availableScheduleModel: PaginateModel<AvailableSchedule>,
+    private readonly dateHelper: DateHelper,
   ) {}
-
-  private hoursValidator = (date: Date, hours: number[]) => {
-    const currentHour = date.getHours() - getUTCHours(new Date());
-    if (hours.some((hour) => hour <= currentHour))
-      throw new BadRequestException(Errors.HOURS_INVALID);
-  };
-
-  private filterRepeatHours = (hours: number[]) => {
-    return hours.filter((value, index, self) => self.indexOf(value) === index);
-  };
 
   async create(
     createAvailableScheduleDto: CreateAvailableScheduleDto,
@@ -43,19 +27,24 @@ export class AvailableSchedulesService {
   ) {
     const { date, hours } = createAvailableScheduleDto;
 
-    // Valida que las horas sean posteriores a la hora del dia que se crea
-    if (isSameDay(new Date(), date)) this.hoursValidator(date, hours);
+    const parseDate = this.dateHelper.getDate(date);
 
-    // Filtra las horas que se repiten
+    const providedDate = this.dateHelper.getStartOfDay(parseDate);
+
+    if (this.dateHelper.isPreviousDay(providedDate)) {
+      throw new BadRequestException(Errors.DATE_IS_PREVIOUS);
+    }
+
+    if (this.dateHelper.isToday(providedDate)) {
+      this.validateHours(hours);
+    }
+
     const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
-
-    // Fecha en la que inicia el dia ( horas, minutos y segundos en 0 )
-    const startOfDay = getStartOfDay(date);
 
     try {
       const availableSchedule = await this.availableScheduleModel.create({
         teacherId,
-        date: startOfDay,
+        date,
         hours: filteredHours,
       });
       return availableSchedule;
@@ -64,31 +53,26 @@ export class AvailableSchedulesService {
     }
   }
 
-  findAll() {
-    return `This action returns all availableSchedules`;
-  }
-
-  private async findOne(query: FilterQuery<AvailableSchedule>) {
-    const availableSchedule = await this.availableScheduleModel.findOne(query);
-    if (!availableSchedule)
-      throw new NotFoundException(Errors.AVAILABLE_SCHEDULE_NOT_FOUND);
-    return availableSchedule;
-  }
-
   async update(
     _id: string,
     updateAvailableScheduleDto: UpdateAvailableScheduleDto,
   ) {
+    const { hours } = updateAvailableScheduleDto;
+
     const availableSchedule = await this.findOne({ _id });
 
     const { date } = availableSchedule;
 
-    if (isPreviousDay(date))
+    const parseDate = this.dateHelper.getDate(date);
+
+    if (this.dateHelper.isPreviousDay(parseDate)) {
       throw new BadRequestException(Errors.DATE_IS_PREVIOUS);
+    }
 
-    const { hours } = updateAvailableScheduleDto;
+    if (this.dateHelper.isToday(parseDate)) {
+      this.validateHours(hours);
+    }
 
-    // Filtra las horas que se repiten
     const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
 
     try {
@@ -99,14 +83,58 @@ export class AvailableSchedulesService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} availableSchedule`;
+  async findByWeek(date: Date) {
+    const parseDate = this.dateHelper.getDate(date);
+
+    const { startOfWeek, endOfWeek } =
+      this.dateHelper.getStartAndEndWeek(parseDate);
+
+    const query: FilterQuery<AvailableSchedule> = {
+      date: {
+        $gte: startOfWeek.format('YYYY-MM-DD'),
+        $lte: endOfWeek.format('YYYY-MM-DD'),
+      },
+    };
+
+    const availableSchedules = await this.availableScheduleModel.find(query);
+
+    return availableSchedules;
+  }
+
+  async delete(_id: string) {
+    await this.findOne({ _id });
+    try {
+      await this.availableScheduleModel.deleteOne({ _id });
+      return {success: true}
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  private async findOne(query: FilterQuery<AvailableSchedule>) {
+    const availableSchedule = await this.availableScheduleModel.findOne(query);
+    if (!availableSchedule) {
+      throw new NotFoundException(Errors.AVAILABLE_SCHEDULE_NOT_FOUND);
+    }
+    return availableSchedule;
+  }
+
+  private filterRepeatHours(hours: number[]) {
+    return hours.filter((value, index, self) => self.indexOf(value) === index);
+  }
+
+  private validateHours(hours: number[]) {
+    const currentHour = this.dateHelper.hour();
+    if (hours.some((hour) => hour <= currentHour)) {
+      throw new BadRequestException(Errors.HOURS_INVALID);
+    }
   }
 
   private handleExceptions(error: any) {
-    if (error.code === 11000)
+    if (error.code === 11000) {
       throw new BadRequestException(Errors.AVAILABLE_SCHEDULE_EXIST);
+    }
     this.logger.error(error);
-    throw new InternalServerErrorException(Errors.SERVER_ERROR);
+    throw new BadRequestException(Errors.SERVER_ERROR);
   }
 }

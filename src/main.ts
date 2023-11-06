@@ -1,8 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
 
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+dayjs.tz.setDefault('America/Bogota');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -59,3 +68,5 @@ async function bootstrap() {
   app.enableCors();
 }
 bootstrap();
+
+

@@ -26,8 +26,8 @@ export enum Errors {
 
   INVALID_TOKEN = 'errors.token.invalid',
 
+  DATE_INVALID_FORMAT = 'errors.date.invalid_format',
   DATE_INVALID = 'errors.date.invalid',
-
   DATE_IS_PREVIOUS = 'errors.date.is_previous',
 
   HOURS_INVALID = 'errors.hours.invalid',

@@ -1,1 +1,1 @@
-export * from './dateValidator';
+export * from './date.helper';
