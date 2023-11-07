@@ -15,6 +15,8 @@ dayjs.tz.setDefault('America/Bogota');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
+  
   const logger = new Logger('Bootstrap');
 
   app.useGlobalPipes(
@@ -64,8 +66,6 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT);
   logger.log(`App running on port ${process.env.PORT}`);
-
-  app.enableCors();
 }
 bootstrap();
 
