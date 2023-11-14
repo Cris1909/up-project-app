@@ -23,6 +23,8 @@ const CREATE_SUBJECT_400 = errorsToString(
   Errors.NAME_NOT_SEND,
   Errors.NAME_MUST_BE_STRING,
   Errors.NAME_TOO_SHORT,
+  Errors.IMG_MUST_BE_URL,
+  Errors.IMG_NOT_SEND
 );
 @ApiTags('Subjects')
 @Controller('subjects')

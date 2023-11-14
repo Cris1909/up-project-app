@@ -34,4 +34,7 @@ export enum Errors {
 
   AVAILABLE_SCHEDULE_EXIST = 'errors.available_schedule.already_exist',
   AVAILABLE_SCHEDULE_NOT_FOUND = 'errors.available_schedule.not_found',
+
+  IMG_MUST_BE_URL = 'errors.img.must_be_url',
+  IMG_NOT_SEND = 'errors.img.not_send',
 }
