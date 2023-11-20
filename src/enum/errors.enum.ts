@@ -37,4 +37,6 @@ export enum Errors {
 
   IMG_MUST_BE_URL = 'errors.img.must_be_url',
   IMG_NOT_SEND = 'errors.img.not_send',
+
+  HOURS_EMPTY = 'errors.hours.empty',
 }
