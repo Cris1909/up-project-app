@@ -9,7 +9,6 @@ import {
 import { Errors } from 'src/enum';
 
 export class CreateAvailableScheduleDto {
-  
   @ApiProperty({
     example: '2023-10-09',
     description: 'Fecha del horario disponible (YYYY-MM-DD)',
@@ -26,10 +25,6 @@ export class CreateAvailableScheduleDto {
     message: Errors.HOURS_INVALID,
   })
   @Max(23, {
-    each: true,
-    message: Errors.HOURS_INVALID,
-  })
-  @IsPositive({
     each: true,
     message: Errors.HOURS_INVALID,
   })
