@@ -69,7 +69,7 @@ export class AuthService {
       .select(this.selectUserLogin);
 
     if (!user || !bcrypt.compareSync(password, user.password))
-      throw new UnauthorizedException(Errors.INVALID_CREDENTIALS);
+      throw new BadRequestException(Errors.INVALID_CREDENTIALS);
 
     const token = this.getJwtToken(user);
 

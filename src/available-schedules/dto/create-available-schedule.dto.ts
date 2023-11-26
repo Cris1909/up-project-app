@@ -1,18 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
+  ArrayNotEmpty,
   IsDateString,
-  IsMongoId,
   IsPositive,
   Max,
   Min,
-  MinDate,
 } from 'class-validator';
-import { DateFormat } from 'src/common/decorators';
 import { Errors } from 'src/enum';
 
 export class CreateAvailableScheduleDto {
-  
   @ApiProperty({
     example: '2023-10-09',
     description: 'Fecha del horario disponible (YYYY-MM-DD)',
@@ -32,9 +28,6 @@ export class CreateAvailableScheduleDto {
     each: true,
     message: Errors.HOURS_INVALID,
   })
-  @IsPositive({
-    each: true,
-    message: Errors.HOURS_INVALID,
-  })
+  @ArrayNotEmpty({ message: Errors.HOURS_EMPTY})
   hours: number[];
 }
