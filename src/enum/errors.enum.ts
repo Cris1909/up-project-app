@@ -39,4 +39,24 @@ export enum Errors {
   IMG_NOT_SEND = 'errors.img.not_send',
 
   HOURS_EMPTY = 'errors.hours.empty',
+
+  APPOINTMENT_NOT_FOUND = 'errors.appointment.not_found',
+  APPOINTMENT_ALREADY_EXIST = 'errors.appointment.already_exist',
+
+  DESCRIPTION_INVALID = 'errors.description.invalid',
+  DESCRIPTION_NOT_SEND = 'errors.description.not_send',
+  DESCRIPTION_TOO_LONG = 'errors.description.too_long',
+  USER_ID_INVALID = 'errors.user_id.invalid',
+  TEACHER_ID_INVALID = 'errors.teacher_id.invalid',
+  SUBJECT_ID_INVALID = 'errors.subject_id.invalid',
+  STATUS_INVALID = 'errors.status.invalid',
+
+  TOKEN_INVALID = 'errors.token.invalid',
+
+  HOURS_NOT_AVAILABLE = 'errors.hours.not_available',
+  TIME_CONFLICT = 'errors.time_conflict',
+
+  INVALID_APPOINTMENT_STATUS = 'errors.invalid.appointment_status',
+
+
 }

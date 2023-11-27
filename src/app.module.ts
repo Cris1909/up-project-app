@@ -11,6 +11,7 @@ import { CustomExceptionFilter } from './common/filters';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { AvailableSchedulesModule } from './available-schedules/available-schedules.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { AvailableSchedulesModule } from './available-schedules/available-schedu
 
     SubjectsModule, 
     
-    AvailableSchedulesModule,
+    AvailableSchedulesModule, AppointmentsModule,
     
   ],
   controllers: [AppController],

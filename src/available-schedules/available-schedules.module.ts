@@ -13,7 +13,6 @@ import { DateHelper } from 'src/helpers';
         name: AvailableSchedule.name,
         schema: AvailableScheduleSchema,
       },
-    
     ]),
   ],
   exports: [MongooseModule]
