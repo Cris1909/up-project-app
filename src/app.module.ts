@@ -12,6 +12,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { AvailableSchedulesModule } from './available-schedules/available-schedules.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -22,13 +23,16 @@ import { AppointmentsModule } from './appointments/appointments.module';
     MongooseModule.forRoot(process.env.MONGO_DB),
 
     CommonModule,
-    
-    AuthModule, 
 
-    SubjectsModule, 
+    AuthModule,
+
+    SubjectsModule,
+
+    AvailableSchedulesModule,
     
-    AvailableSchedulesModule, AppointmentsModule,
-    
+    AppointmentsModule,
+
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

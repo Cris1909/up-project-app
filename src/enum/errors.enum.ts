@@ -61,4 +61,12 @@ export enum Errors {
   APPOINTMENT_STATUS_NOT_ASSIGNABLE = 'errors.appointment_status.not_assignable',
 
   REJECT_MESSAGE_NOT_SEND = 'errors.reject_message.not_send',
+
+  APPOINTMENT_NOT_SEND = 'errors.appointment_not_send',
+
+  VALUE_MUST_BE_NUMBER = 'errors.value.must_be_number',
+
+  VALUE_CANNOT_BE_NEGATIVE = 'errors.value.cannot_be_negative',
+
+  PAYMENT_STATUS_MUST_BE_ENUM = 'errors.payment_status.must_be_enum',
 }

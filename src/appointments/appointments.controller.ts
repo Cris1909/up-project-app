@@ -19,6 +19,7 @@ import {
 
 import { AppointmentsService } from './appointments.service';
 import {
+  ApproveAppointmentDto,
   CreateAppointmentDto,
   RejectAppointmentDto,
   UpdateAppointmentStatusDto,
@@ -135,4 +136,11 @@ export class AppointmentsController {
   ) {
     await this.appointmentsService.rejectAppointment(id, rejectAppointmentDto);
   }
+ 
+  
+  @Post('approve-appointment/:id')
+  async approveAppointment(@Param('id') id: string, @Body() approveAppointmentDto: ApproveAppointmentDto) {
+    return this.appointmentsService.approveAppointment(id, approveAppointmentDto);
+  }
+
 }
