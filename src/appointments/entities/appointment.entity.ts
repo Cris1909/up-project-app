@@ -5,7 +5,11 @@ import { User } from 'src/auth/entities';
 import { Subject } from 'src/subjects/entities';
 import { AppointmentStatus } from 'src/enum';
 
-@Schema()
+@Schema(
+  {
+    timestamps: true,
+  }
+)
 export class Appointment extends Document {
   @ApiProperty({
     example: '64e03066a03320deead383b1',
@@ -76,6 +80,14 @@ export class Appointment extends Document {
     default: AppointmentStatus.SOLICITED,
   })
   status: AppointmentStatus;
+
+  @ApiProperty({
+    example: 'El tema que especificaste no está disponible',
+    description: 'Mensaje que explica porqué se rechazo una asesoría',
+    nullable: true,
+  })
+  @Prop({ required: false })
+  rejectMessage: string;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

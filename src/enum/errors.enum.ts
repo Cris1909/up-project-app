@@ -58,5 +58,7 @@ export enum Errors {
 
   INVALID_APPOINTMENT_STATUS = 'errors.invalid.appointment_status',
 
+  APPOINTMENT_STATUS_NOT_ASSIGNABLE = 'errors.appointment_status.not_assignable',
 
+  REJECT_MESSAGE_NOT_SEND = 'errors.reject_message.not_send',
 }

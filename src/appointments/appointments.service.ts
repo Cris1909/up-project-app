@@ -1,10 +1,11 @@
+
 import { Injectable, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, FilterQuery } from 'mongoose';
 
 import { Appointment } from './entities';
 import { AvailableSchedule } from 'src/available-schedules/entities';
-import { CreateAppointmentDto, UpdateAppointmentDto, UpdateAppointmentStatusDto } from './dto';
+import { CreateAppointmentDto, RejectAppointmentDto, UpdateAppointmentDto, UpdateAppointmentStatusDto } from './dto';
 
 import { DateHelper } from 'src/helpers';
 import { AppointmentStatus, Errors } from 'src/enum';
@@ -22,7 +23,7 @@ export class AppointmentsService {
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto, userId: string) {
-    const { date, hours,description, teacher, subject } = createAppointmentDto;
+    const { date, hours, description, teacher, subject } = createAppointmentDto;
   
     const parseDate = this.dateHelper.getDate(date);
     const providedDate = this.dateHelper.getStartOfDay(parseDate);
@@ -45,20 +46,28 @@ export class AppointmentsService {
 
     const existingAppointments = await this.appointmentModel.find({
       date,
-      // user: userId,
     });
 
     this.validateNoTimeConflict(hours, existingAppointments);
   
-    const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
+    const filteredHours = this.filterAndSortHours(hours);
   
     try {
       const appointment = await this.appointmentModel.create({
         user: userId,
         date,
         hours: filteredHours,
-        description, teacher, subject
+        description,
+        teacher,
+        subject
       });
+
+      // Actualizar horas disponibles en el availableSchedule
+      await this.availableScheduleModel.updateOne(
+        { _id: availableSchedule._id },
+        { $pull: { hours: { $in: filteredHours } } }
+      );
+
       return appointment;
     } catch (error) {
       this.handleExceptions(error);
@@ -82,6 +91,12 @@ export class AppointmentsService {
       throw new BadRequestException(Errors.TIME_CONFLICT);
     }
   }
+
+  private filterAndSortHours(hours: number[]) {
+    const uniqueSortedHours = Array.from(new Set(hours)).sort((a, b) => a - b);
+    return uniqueSortedHours;
+  }
+
   async update(id: string, updateAppointmentDto: UpdateAppointmentDto) {
     const { hours, description } = updateAppointmentDto;
   
@@ -114,8 +129,7 @@ export class AppointmentsService {
     }
   }
 
-  async updateStatus(id: string, updateStatusDto: UpdateAppointmentStatusDto) {
-    const { status } = updateStatusDto;
+  async updateStatus(id: string, status: AppointmentStatus, rejectMessage?: string) {
 
     if (!Object.values(AppointmentStatus).includes(status)) {
       throw new BadRequestException(Errors.INVALID_APPOINTMENT_STATUS);
@@ -124,10 +138,46 @@ export class AppointmentsService {
     try {
       const appointment = await this.findOne({ _id: id });
       appointment.status = status;
+      appointment.rejectMessage = rejectMessage;
       await appointment.save();
       return { ...appointment.toJSON(), status };
     } catch (error) {
       this.handleExceptions(error);
+    }
+  }
+
+
+  async rejectAppointment(id: string, rejectAppointmentDto: RejectAppointmentDto) {
+    
+    const {rejectMessage} = rejectAppointmentDto
+    
+    const rejectedStatus = AppointmentStatus.REJECTED;
+  
+    await this.updateStatus(id,  AppointmentStatus.REJECTED, rejectMessage);
+  
+    try {
+      const appointment = await this.findOne({ _id: id });
+  
+      await this.restoreHoursInAvailableSchedule(appointment);
+  
+      return { ...appointment.toJSON(), status: rejectedStatus };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+  
+  private async restoreHoursInAvailableSchedule(appointment: Appointment) {
+    const { date, hours } = appointment;
+
+    // Obtener el availableSchedule para la fecha de la cita
+    const availableSchedule = await this.availableScheduleModel.findOne({ date });
+  
+    if (availableSchedule) {
+      // Agregar las horas de la cita de vuelta al availableSchedule
+      await this.availableScheduleModel.updateOne(
+        { _id: availableSchedule._id },
+        { $addToSet: { hours: { $each: hours } } }
+      );
     }
   }
 
@@ -136,6 +186,7 @@ export class AppointmentsService {
     const { startOfWeek, endOfWeek } = this.dateHelper.getStartAndEndWeek(parseDate);
 
     const query: FilterQuery<Appointment> = {
+      status: {$ne: AppointmentStatus.REJECTED},
       date: {
         $gte: startOfWeek.format('YYYY-MM-DD'),
         $lte: endOfWeek.format('YYYY-MM-DD'),

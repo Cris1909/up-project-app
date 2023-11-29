@@ -7,7 +7,6 @@ import {
   Body,
   Delete,
   Query,
-  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -21,7 +20,7 @@ import {
 import { AppointmentsService } from './appointments.service';
 import {
   CreateAppointmentDto,
-  UpdateAppointmentDto,
+  RejectAppointmentDto,
   UpdateAppointmentStatusDto,
 } from './dto';
 import { Auth, GetUser } from 'src/auth/decorators';
@@ -41,9 +40,9 @@ const CREATE_APPOINTMENT_400 = errorsToString(
   Errors.STATUS_INVALID,
 );
 
-const UPDATE_APPOINTMENT_400 = errorsToString(
-  Errors.INVALID_MONGO_ID,
-  Errors.HOURS_INVALID,
+const REJECTED_APPOINTMENT_400 = errorsToString(
+  Errors.INVALID_APPOINTMENT_STATUS,
+  Errors.APPOINTMENT_NOT_FOUND
 );
 
 @ApiTags('Appointments')
@@ -70,29 +69,6 @@ export class AppointmentsController {
   ) {
     return await this.appointmentsService.create(createAppointmentDto, userId);
   }
-
-  // @Patch('update-hours/:id')
-  // @Auth(ValidRoles.TEACHER)
-  // @ApiOperation({
-  //   summary: 'Ruta para actualizar las horas de una asesoría',
-  //   description: rolesRequired(ValidRoles.TEACHER),
-  // })
-  // @ApiOkResponse({
-  //   description: 'Actualizado con éxito',
-  //   type: Appointment,
-  // })
-  // @ApiBadRequestResponse({
-  //   description: UPDATE_APPOINTMENT_400,
-  // })
-  // @ApiNotFoundResponse({
-  //   description: Errors.APPOINTMENT_NOT_FOUND,
-  // })
-  // async update(
-  //   @Param('id', ParseMongoIdPipe) id: string,
-  //   @Body() updateAppointmentDto: UpdateAppointmentDto,
-  // ) {
-  //   return await this.appointmentsService.update(id, updateAppointmentDto);
-  // }
 
   @Get('list-by-week')
   @ApiOperation({
@@ -128,7 +104,7 @@ export class AppointmentsController {
     description: 'Estado de la asesoría actualizado con éxito',
   })
   @ApiBadRequestResponse({
-    description: Errors.INVALID_APPOINTMENT_STATUS,
+    description: REJECTED_APPOINTMENT_400
   })
   @ApiNotFoundResponse({
     description: Errors.APPOINTMENT_NOT_FOUND,
@@ -137,15 +113,26 @@ export class AppointmentsController {
     @Param('id') id: string,
     @Body() updateStatusDto: UpdateAppointmentStatusDto,
   ) {
-    try {
-      await this.appointmentsService.updateStatus(id, updateStatusDto);
-      return { success: true };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException(error.message);
-      }
-      throw new BadRequestException(Errors.SERVER_ERROR);
-    }
+    await this.appointmentsService.updateStatus(id, updateStatusDto.status);
   }
 
+  @Patch('reject-appointment/:id')
+  @ApiOperation({
+    summary: 'Pasar a rechazada una asesoría',
+  })
+  @ApiOkResponse({
+    description: 'Asesoría rechazada exitosamente',
+  })
+  @ApiBadRequestResponse({
+    description: Errors.INVALID_APPOINTMENT_STATUS,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.APPOINTMENT_NOT_FOUND,
+  })
+  async rejectAppointment(
+    @Param('id') id: string,
+    @Body() rejectAppointmentDto: RejectAppointmentDto,
+  ) {
+    await this.appointmentsService.rejectAppointment(id, rejectAppointmentDto);
+  }
 }
