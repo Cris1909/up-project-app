@@ -11,15 +11,17 @@ import { Appointment } from './entities';
 import { AvailableSchedule } from 'src/available-schedules/entities';
 import {
   ApproveAppointmentDto,
+  CompleteAppointmentDto,
   CreateAppointmentDto,
   RejectAppointmentDto,
   UpdateAppointmentDto,
   UpdateAppointmentStatusDto,
 } from './dto';
 
-import { DateHelper } from 'src/helpers';
-import { AppointmentStatus, Errors, PaymentStatus } from 'src/enum';
+import { DateHelper, parseToObjectId, validateEnum } from 'src/helpers';
+import { AppointmentStatus, Errors, PaymentStatus, ValidRoles } from 'src/enum';
 import { PaymentsService } from 'src/payments/payments.service';
+import { User } from 'src/auth/entities';
 
 @Injectable()
 export class AppointmentsService {
@@ -60,6 +62,7 @@ export class AppointmentsService {
 
     const existingAppointments = await this.appointmentModel.find({
       date,
+      status: { $ne: AppointmentStatus.REJECTED },
     });
 
     this.validateNoTimeConflict(hours, existingAppointments);
@@ -162,7 +165,8 @@ export class AppointmentsService {
     status: AppointmentStatus,
     rejectMessage?: string,
   ) {
-    if (!Object.values(AppointmentStatus).includes(status)) {
+    // Object.values(AppointmentStatus).includes(status)
+    if (!validateEnum(AppointmentStatus, status)) {
       throw new BadRequestException(Errors.INVALID_APPOINTMENT_STATUS);
     }
 
@@ -184,7 +188,7 @@ export class AppointmentsService {
     const { value } = approveAppointmentDto;
     const approvedStatus = AppointmentStatus.PENDING;
 
-    await this.updateStatus(id, AppointmentStatus.PENDING);
+    await this.updateStatus(id, approvedStatus);
 
     try {
       const appointment = await this.findOne({ _id: id });
@@ -201,6 +205,25 @@ export class AppointmentsService {
     }
   }
 
+  async confirmAppointment(id: string) {
+    const confirmStatus = AppointmentStatus.CONFIRMED;
+
+    await this.updateStatus(id, confirmStatus);
+
+    try {
+      const appointment = await this.findOne({ _id: id });
+
+      await this.paymentsService.updatePaymentStatus({
+        appointmentId: id,
+        newStatus: PaymentStatus.CONFIRMED,
+      });
+
+      return { ...appointment.toJSON(), status: confirmStatus };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
   async rejectAppointment(
     id: string,
     rejectAppointmentDto: RejectAppointmentDto,
@@ -211,6 +234,11 @@ export class AppointmentsService {
 
     await this.updateStatus(id, rejectedStatus, rejectMessage);
 
+    await this.paymentsService.updatePaymentStatus({
+      appointmentId: id,
+      newStatus: PaymentStatus.DENIED,
+    });
+
     try {
       const appointment = await this.findOne({ _id: id });
 
@@ -219,6 +247,37 @@ export class AppointmentsService {
       return { ...appointment.toJSON(), status: rejectedStatus };
     } catch (error) {
       this.handleExceptions(error);
+    }
+  }
+
+  async completeAppointment(
+    id: string,
+    completeAppointmentDto?: CompleteAppointmentDto,
+  ): Promise<Appointment> {
+    const { data } = completeAppointmentDto;
+    try {
+      const appointment = await this.appointmentModel.findById(id);
+
+      if (!appointment) {
+        throw new BadRequestException(Errors.APPOINTMENT_NOT_FOUND);
+      }
+
+      const currentDate = new Date();
+      const appointmentDate = new Date(appointment.date);
+      
+      if (currentDate < appointmentDate) {
+        throw new BadRequestException(
+         Errors.APPOINTMENT_IS_BEFORE
+        );
+      }
+
+      appointment.status = AppointmentStatus.COMPLETED 
+      appointment.data = data;
+      await appointment.save();
+
+      return appointment;
+    } catch (error) {
+      throw new BadRequestException('Failed to complete appointment');
     }
   }
 
@@ -239,12 +298,52 @@ export class AppointmentsService {
     }
   }
 
-  async findByWeek(date: Date) {
+  async getAppointmentById(_id: string, user: User) {
+    const appointment = await this.appointmentModel.aggregate([
+      {
+        $match: {
+          _id: parseToObjectId(_id),
+        },
+      },
+      {
+        $lookup: {
+          from: 'payments',
+          localField: '_id',
+          foreignField: 'appointment',
+          as: 'payment',
+        },
+      },
+    ]);
+
+    const parseAppointment: any = appointment[0];
+
+    if (!appointment.length)
+      throw new NotFoundException(Errors.APPOINTMENT_NOT_FOUND);
+
+    if (user.roles.includes(ValidRoles.STUDENT) && user.id !== parseAppointment.id )
+      throw new BadRequestException(Errors.APPOINTMENT_NOT_ACCESSIBLE);
+
+    parseAppointment.payment = parseAppointment?.payment[0];
+    return parseAppointment;
+  }
+
+  async findByWeek(date: Date, user: User) {
+    const { roles, _id } = user;
+
+    const isTeacherOrAdmin = roles.some(
+      (e) => e === ValidRoles.TEACHER || e === ValidRoles.ADMIN,
+    );
+
     const parseDate = this.dateHelper.getDate(date);
     const { startOfWeek, endOfWeek } =
       this.dateHelper.getStartAndEndWeek(parseDate);
 
+    const whoGet = isTeacherOrAdmin
+      ? {}
+      : { user: { $eq: parseToObjectId(_id) } };
+
     const query: FilterQuery<Appointment> = {
+      ...whoGet,
       status: { $ne: AppointmentStatus.REJECTED },
       date: {
         $gte: startOfWeek.format('YYYY-MM-DD'),

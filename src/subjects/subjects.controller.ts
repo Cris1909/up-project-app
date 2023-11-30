@@ -49,10 +49,10 @@ export class SubjectsController {
   }
 
   @Get('list-active')
-  @Auth(ValidRoles.USER)
+  @Auth()
   @ApiOperation({
     summary: 'Ruta para obtener todas las materias activas',
-    description: rolesRequired(ValidRoles.USER),
+    description: rolesRequired(),
   })
   @ApiOkResponse({
     description: 'Todas las materias activas',

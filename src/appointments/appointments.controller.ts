@@ -20,6 +20,7 @@ import {
 import { AppointmentsService } from './appointments.service';
 import {
   ApproveAppointmentDto,
+  CompleteAppointmentDto,
   CreateAppointmentDto,
   RejectAppointmentDto,
   UpdateAppointmentStatusDto,
@@ -29,6 +30,7 @@ import { Errors, ValidRoles } from 'src/enum';
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { errorsToString, rolesRequired } from 'src/helpers';
 import { Appointment } from './entities';
+import { User } from 'src/auth/entities';
 
 const CREATE_APPOINTMENT_400 = errorsToString(
   Errors.DATE_INVALID_FORMAT,
@@ -43,8 +45,10 @@ const CREATE_APPOINTMENT_400 = errorsToString(
 
 const REJECTED_APPOINTMENT_400 = errorsToString(
   Errors.INVALID_APPOINTMENT_STATUS,
-  Errors.APPOINTMENT_NOT_FOUND
+  Errors.APPOINTMENT_NOT_FOUND,
 );
+
+const COMPLETE_APPOINTMENT_400 = Errors.INVALID_APPOINTMENT_STATUS;
 
 @ApiTags('Appointments')
 @Controller('appointments')
@@ -52,10 +56,10 @@ export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post('create')
-  @Auth(ValidRoles.USER)
+  @Auth(ValidRoles.STUDENT)
   @ApiOperation({
     summary: 'Ruta para agendar una asesoría',
-    description: rolesRequired(ValidRoles.USER),
+    description: rolesRequired(ValidRoles.STUDENT),
   })
   @ApiCreatedResponse({
     description: 'Asesoría creada',
@@ -71,6 +75,7 @@ export class AppointmentsController {
     return await this.appointmentsService.create(createAppointmentDto, userId);
   }
 
+  @Auth()
   @Get('list-by-week')
   @ApiOperation({
     summary: 'Ruta para listar asesorías de la semana actual',
@@ -80,12 +85,10 @@ export class AppointmentsController {
     isArray: true,
     type: Appointment,
   })
-  async findByWeek(@Query('date') date: Date) {
-    return await this.appointmentsService.findByWeek(date);
+  async findByWeek(@Query('date') date: Date, @GetUser() user: User,) {
+    return await this.appointmentsService.findByWeek(date, user);
   }
 
-  @Delete('delete/:id')
-  @Auth(ValidRoles.TEACHER)
   @ApiOperation({
     summary: 'Ruta para eliminar una asesoría',
     description: rolesRequired(ValidRoles.TEACHER),
@@ -93,11 +96,12 @@ export class AppointmentsController {
   @ApiOkResponse({
     description: 'Eliminado con éxito',
   })
+  @Auth(ValidRoles.TEACHER)
+  @Delete('delete/:id')
   async delete(@Param('id', ParseMongoIdPipe) id: string) {
     return await this.appointmentsService.delete(id);
   }
-
-  @Patch('update-status/:id')
+  
   @ApiOperation({
     summary: 'Actualizar el estado de una asesoría',
   })
@@ -105,19 +109,20 @@ export class AppointmentsController {
     description: 'Estado de la asesoría actualizado con éxito',
   })
   @ApiBadRequestResponse({
-    description: REJECTED_APPOINTMENT_400
+    description: REJECTED_APPOINTMENT_400,
   })
   @ApiNotFoundResponse({
     description: Errors.APPOINTMENT_NOT_FOUND,
   })
+  @Auth(ValidRoles.TEACHER)
+  @Patch('update-status/:id')
   async updateStatus(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() updateStatusDto: UpdateAppointmentStatusDto,
   ) {
     await this.appointmentsService.updateStatus(id, updateStatusDto.status);
   }
 
-  @Patch('reject-appointment/:id')
   @ApiOperation({
     summary: 'Pasar a rechazada una asesoría',
   })
@@ -130,17 +135,75 @@ export class AppointmentsController {
   @ApiNotFoundResponse({
     description: Errors.APPOINTMENT_NOT_FOUND,
   })
+  @Auth(ValidRoles.TEACHER)
+  @Patch('reject-appointment/:id')
   async rejectAppointment(
-    @Param('id') id: string,
+    @Param('id', ParseMongoIdPipe) id: string,
     @Body() rejectAppointmentDto: RejectAppointmentDto,
   ) {
     await this.appointmentsService.rejectAppointment(id, rejectAppointmentDto);
   }
- 
-  
+
+  @ApiOperation({
+    summary: 'Aprobar una asesoría por id',
+  })
+  @Auth(ValidRoles.TEACHER)
   @Post('approve-appointment/:id')
-  async approveAppointment(@Param('id') id: string, @Body() approveAppointmentDto: ApproveAppointmentDto) {
-    return this.appointmentsService.approveAppointment(id, approveAppointmentDto);
+  async approveAppointment(
+    @Param('id') id: string,
+    @Body() approveAppointmentDto: ApproveAppointmentDto,
+  ) {
+    return this.appointmentsService.approveAppointment(
+      id,
+      approveAppointmentDto,
+    );
   }
 
+  @ApiOperation({
+    summary: 'Obtener una asesoría por id',
+  })
+  @ApiBadRequestResponse({
+    description: Errors.APPOINTMENT_NOT_ACCESSIBLE,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.APPOINTMENT_NOT_FOUND,
+  })
+  @Auth(ValidRoles.ADMIN, ValidRoles.TEACHER, ValidRoles.STUDENT)
+  @Get('/appointment-by-id/:id')
+  async getAppointmentById(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @GetUser() user: User,
+  ) {
+    return this.appointmentsService.getAppointmentById(id, user);
+  }
+
+  @ApiOperation({
+    summary: 'Confirmar una asesoría por id',
+  })
+  @Auth(ValidRoles.TEACHER)
+  @Post('confirm-appointment/:id')
+  async confirmAppointment(@Param('id') id: string) {
+    return this.appointmentsService.confirmAppointment(id);
+  }
+
+  @ApiOperation({
+    summary: 'Completar una asesoría',
+  })
+  @ApiOkResponse({
+    description: 'Asesoría completada exitosamente',
+  })
+  @ApiBadRequestResponse({
+    description: COMPLETE_APPOINTMENT_400,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.APPOINTMENT_NOT_FOUND,
+  })
+  @Auth(ValidRoles.TEACHER)
+  @Patch('complete-appointment/:id')
+  async completeAppointment(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() completeAppointmentDto: CompleteAppointmentDto,
+  ) {
+    return this.appointmentsService.completeAppointment(id, completeAppointmentDto);
+  }
 }

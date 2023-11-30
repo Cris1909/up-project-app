@@ -88,6 +88,17 @@ export class Appointment extends Document {
   })
   @Prop({ required: false })
   rejectMessage: string;
+
+  @ApiProperty({
+    example: [
+      { text: 'Ejercicio 1', url: 'https://...' },
+      { text: 'Ejercicio 2', url: 'https://...' },
+    ],
+    description: 'Datos asociados a la asesoría completada',
+    nullable: true,
+  })
+  @Prop({ type: [{ text: String, url: String }], required: false })
+  data: { text: string; url: string }[];
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

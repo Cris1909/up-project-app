@@ -69,4 +69,12 @@ export enum Errors {
   VALUE_CANNOT_BE_NEGATIVE = 'errors.value.cannot_be_negative',
 
   PAYMENT_STATUS_MUST_BE_ENUM = 'errors.payment_status.must_be_enum',
+
+  APPOINTMENT_NOT_ACCESSIBLE = 'errors.appointment_not_accessible',
+
+  PAYMENT_NOT_FOUND = 'errors.payment_not_found',
+
+  PAYMENT_ERROR = 'errors.payment_error',
+
+  APPOINTMENT_IS_BEFORE = 'errors.appointment_is_before',
 }
