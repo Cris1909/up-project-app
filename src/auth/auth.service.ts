@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 
 import { User } from './entities';
 import { CreateUserDto, LoginUserDto } from './dto';
-import { Errors } from 'src/enum';
+import { Errors, ValidRoles } from 'src/enum';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
 
@@ -84,6 +84,13 @@ export class AuthService {
       payload: user,
       token: this.getJwtToken(user),
     };
+  }
+
+  async getUserCount(): Promise<number> {
+    const result = await this.userModel.countDocuments({
+      roles: { $in: [ValidRoles.STUDENT] }, 
+    });
+    return result
   }
 
   private getJwtToken({ _id, email, name, phoneNumber, roles }: JwtPayload) {

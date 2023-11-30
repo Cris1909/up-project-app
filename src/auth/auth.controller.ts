@@ -18,7 +18,7 @@ import {
 import { User } from './entities';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
-import { Errors } from 'src/enum';
+import { Errors, ValidRoles } from 'src/enum';
 import { errorsToString } from 'src/helpers';
 import { Auth, GetUser } from './decorators';
 import { SessionResponse } from './responses';
@@ -78,5 +78,13 @@ export class AuthController {
   })
   checkAuthStatus(@GetUser() user: User) {
     return this.authService.checkAuthStatus(user);
+  }
+
+  @Auth(ValidRoles.ADMIN)
+  @Get('students-count')
+  @ApiOperation({ summary: 'Obtener el número de usuarios (estudiantes)' })
+  @ApiOkResponse({ description: 'Número de usuarios', type: Number })
+  async getUserCount(): Promise<number> {
+    return await this.authService.getUserCount();
   }
 }

@@ -29,7 +29,7 @@ import { PaymentsModule } from './payments/payments.module';
     SubjectsModule,
 
     AvailableSchedulesModule,
-    
+
     AppointmentsModule,
 
     PaymentsModule,

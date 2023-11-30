@@ -380,6 +380,80 @@ export class AppointmentsService {
     }
   }
 
+  async getAppointmentsBySubject() {
+    const appointmentsBySubject = await this.appointmentModel.aggregate([
+      {
+        $group: {
+          _id: '$subject',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'subjects',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'subjectDetails',
+        },
+      },
+      {
+        $unwind: '$subjectDetails',
+      },
+      {
+        $project: {
+          _id: 0,
+          subject: '$subjectDetails',
+          count: 1,
+        },
+      },
+    ]);
+
+    return appointmentsBySubject;
+  }
+  async getAppointmentHours() {
+    const appointmentHours = await this.appointmentModel.aggregate([
+      {
+        $match: {
+          status: { $eq: AppointmentStatus.COMPLETED },
+        },
+      },
+      {
+        $group: {
+          _id: { $hour: '$completedAt' },
+          totalHours: { $sum: { $size: '$hours' } },
+        },
+      },
+    ]);
+    const result = appointmentHours[0]?.totalHours || 0;
+    return result;
+  }
+
+  async getAverageRating(): Promise<number> {
+    const averageRating = await this.appointmentModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$review.value' },
+        },
+      },
+    ]);
+
+    return averageRating.length > 0 ? averageRating[0].averageRating : 0;
+  }
+
+  async getCompletedAppointments() {
+    const result = await this.appointmentModel.countDocuments([
+      {
+        $match: {
+          status: { $eq: AppointmentStatus.COMPLETED },
+        },
+      },
+    ]);
+    console.log(result)
+    // const result = appointmentHours[0]?.totalHours || 0;
+    return result;
+  }
+
   async delete(id: string) {
     await this.findOne({ _id: id });
     try {

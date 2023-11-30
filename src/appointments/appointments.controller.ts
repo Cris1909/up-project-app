@@ -229,4 +229,37 @@ export class AppointmentsController {
   ) {
     return await this.appointmentsService.addReview(id, reviewDto);
   }
+
+  @Auth(ValidRoles.ADMIN)
+  @Get('subject-appointments')
+  @ApiOperation({ summary: 'Obtener el número de asesorías por materia activa' })
+  @ApiOkResponse({ description: 'Estadísticas de asesorías por materia', type: Object })
+  async getSubjectAppointmentsCount(): Promise<Object> {
+    return await this.appointmentsService.getAppointmentsBySubject();
+  }
+
+  @Auth(ValidRoles.ADMIN)
+  @Get('appointment-stats')
+  @ApiOperation({ summary: 'Obtener estadísticas generales de asesorías' })
+  @ApiOkResponse({ description: 'Estadísticas generales de asesorías', type: Object })
+  async getAppointmentStats(): Promise<Object> {
+    return await this.appointmentsService.getAppointmentHours();
+  }
+
+  @Auth(ValidRoles.ADMIN)
+  @Get('average-ratings')
+  @ApiOperation({ summary: 'Obtener el promedio de estrellas de asesorías' })
+  @ApiOkResponse({ description: 'Estadísticas de estrellas', type: Object })
+  async getAverageStars(): Promise<Object> {
+    return await this.appointmentsService.getAverageRating();
+  }
+
+  @Auth(ValidRoles.ADMIN)
+  @Get('total-appointments-completed')
+  @ApiOperation({ summary: 'Obtener estadísticas de asesorías completadas' })
+  @ApiOkResponse({ description: 'Número de asesorías completadas', type: Object })
+  async getCompletedAppointments(): Promise<Object> {
+    return await this.appointmentsService.getCompletedAppointments();
+  }
+  
 }
