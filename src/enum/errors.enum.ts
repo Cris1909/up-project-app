@@ -77,4 +77,6 @@ export enum Errors {
   PAYMENT_ERROR = 'errors.payment_error',
 
   APPOINTMENT_IS_BEFORE = 'errors.appointment_is_before',
+
+  INVALID_REVIEW_DATA = 'errors.invalid_review_data',
 }

@@ -5,6 +5,24 @@ import { User } from 'src/auth/entities';
 import { Subject } from 'src/subjects/entities';
 import { AppointmentStatus } from 'src/enum';
 
+export class Review {
+  @ApiProperty({
+    example: 4.5,
+    description: 'Calificación de la asesoría',
+    nullable: false,
+  })
+  @Prop({ required: true })
+  value: number;
+
+  @ApiProperty({
+    example: 'Buena asesoría, me ayudó mucho',
+    description: 'Comentario o texto de la revisión',
+    nullable: false,
+  })
+  @Prop({ required: true })
+  text: string;
+}
+
 @Schema(
   {
     timestamps: true,
@@ -99,6 +117,14 @@ export class Appointment extends Document {
   })
   @Prop({ type: [{ text: String, url: String }], required: false })
   data: { text: string; url: string }[];
+
+  @ApiProperty({
+    type: Review,
+    description: 'Revisiones de la asesoría',
+    nullable: true,
+  })
+  @Prop({ type: Review })
+  review: Review;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

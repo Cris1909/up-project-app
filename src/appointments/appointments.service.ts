@@ -14,6 +14,7 @@ import {
   CompleteAppointmentDto,
   CreateAppointmentDto,
   RejectAppointmentDto,
+  ReviewAppointmentDto,
   UpdateAppointmentDto,
   UpdateAppointmentStatusDto,
 } from './dto';
@@ -264,14 +265,12 @@ export class AppointmentsService {
 
       const currentDate = new Date();
       const appointmentDate = new Date(appointment.date);
-      
+
       if (currentDate < appointmentDate) {
-        throw new BadRequestException(
-         Errors.APPOINTMENT_IS_BEFORE
-        );
+        throw new BadRequestException(Errors.APPOINTMENT_IS_BEFORE);
       }
 
-      appointment.status = AppointmentStatus.COMPLETED 
+      appointment.status = AppointmentStatus.COMPLETED;
       appointment.data = data;
       await appointment.save();
 
@@ -320,7 +319,10 @@ export class AppointmentsService {
     if (!appointment.length)
       throw new NotFoundException(Errors.APPOINTMENT_NOT_FOUND);
 
-    if (user.roles.includes(ValidRoles.STUDENT) && user.id !== parseAppointment.id )
+    if (
+      user.roles.includes(ValidRoles.STUDENT) &&
+      user.id !== parseAppointment.id
+    )
       throw new BadRequestException(Errors.APPOINTMENT_NOT_ACCESSIBLE);
 
     parseAppointment.payment = parseAppointment?.payment[0];
@@ -356,6 +358,26 @@ export class AppointmentsService {
       .populate(['teacher', 'user', 'subject']);
 
     return appointments;
+  }
+
+  async addReview(
+    appointmentId: string,
+    reviewDto: ReviewAppointmentDto,
+  ): Promise<Appointment> {
+    const { value, text } = reviewDto;
+    try {
+      const appointment = await this.appointmentModel.findById(appointmentId);
+
+      if (!appointment) {
+        throw new NotFoundException(Errors.APPOINTMENT_NOT_FOUND);
+      }
+
+      appointment.review = { value, text };
+
+      return await appointment.save();
+    } catch (error) {
+      throw new BadRequestException('Failed to add review');
+    }
   }
 
   async delete(id: string) {

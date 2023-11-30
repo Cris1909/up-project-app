@@ -23,6 +23,7 @@ import {
   CompleteAppointmentDto,
   CreateAppointmentDto,
   RejectAppointmentDto,
+  ReviewAppointmentDto,
   UpdateAppointmentStatusDto,
 } from './dto';
 import { Auth, GetUser } from 'src/auth/decorators';
@@ -205,5 +206,27 @@ export class AppointmentsController {
     @Body() completeAppointmentDto: CompleteAppointmentDto,
   ) {
     return this.appointmentsService.completeAppointment(id, completeAppointmentDto);
+  }
+
+  @ApiOperation({
+    summary: 'Agregar una revisión a una asesoría',
+  })
+  @ApiOkResponse({
+    description: 'Revisión agregada con éxito',
+    type: Appointment,
+  })
+  @ApiBadRequestResponse({
+    description: Errors.INVALID_REVIEW_DATA,
+  })
+  @ApiNotFoundResponse({
+    description: Errors.APPOINTMENT_NOT_FOUND,
+  })
+  @Auth(ValidRoles.STUDENT, ValidRoles.TEACHER)
+  @Post('add-review/:id')
+  async addReview(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() reviewDto: ReviewAppointmentDto,
+  ) {
+    return await this.appointmentsService.addReview(id, reviewDto);
   }
 }
