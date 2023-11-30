@@ -235,10 +235,12 @@ export class AppointmentsService {
 
     await this.updateStatus(id, rejectedStatus, rejectMessage);
 
-    await this.paymentsService.updatePaymentStatus({
-      appointmentId: id,
-      newStatus: PaymentStatus.DENIED,
-    });
+    try {
+      await this.paymentsService.updatePaymentStatus({
+        appointmentId: id,
+        newStatus: PaymentStatus.DENIED,
+      });
+    } catch (error) {}
 
     try {
       const appointment = await this.findOne({ _id: id });
@@ -318,7 +320,7 @@ export class AppointmentsService {
 
     if (!appointment.length)
       throw new NotFoundException(Errors.APPOINTMENT_NOT_FOUND);
-    
+
     if (
       user.roles.includes(ValidRoles.STUDENT) &&
       user.id !== parseAppointment.user.toString()
@@ -443,14 +445,9 @@ export class AppointmentsService {
   }
 
   async getCompletedAppointments() {
-    const result = await this.appointmentModel.countDocuments([
-      {
-        $match: {
-          status: { $eq: AppointmentStatus.COMPLETED },
-        },
-      },
-    ]);
-    console.log(result)
+    const result = await this.appointmentModel.count({
+        status: AppointmentStatus.COMPLETED,
+    });
     // const result = appointmentHours[0]?.totalHours || 0;
     return result;
   }
