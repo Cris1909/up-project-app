@@ -318,10 +318,10 @@ export class AppointmentsService {
 
     if (!appointment.length)
       throw new NotFoundException(Errors.APPOINTMENT_NOT_FOUND);
-
+    
     if (
       user.roles.includes(ValidRoles.STUDENT) &&
-      user.id !== parseAppointment.id
+      user.id !== parseAppointment.user.toString()
     )
       throw new BadRequestException(Errors.APPOINTMENT_NOT_ACCESSIBLE);
 
@@ -410,6 +410,7 @@ export class AppointmentsService {
 
     return appointmentsBySubject;
   }
+
   async getAppointmentHours() {
     const appointmentHours = await this.appointmentModel.aggregate([
       {
