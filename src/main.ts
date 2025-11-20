@@ -16,7 +16,7 @@ dayjs.tz.setDefault('America/Bogota');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  
+
   const logger = new Logger('Bootstrap');
 
   app.useGlobalPipes(
@@ -38,7 +38,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Lito Students API')
+    .setTitle('Villa Learning Appointment API')
     .setDescription('Esta es la documentación del proyecto')
     .setVersion('1.0')
     .addBearerAuth(undefined, 'defaultBearerAuth')
@@ -68,5 +68,3 @@ async function bootstrap() {
   logger.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();
-
-

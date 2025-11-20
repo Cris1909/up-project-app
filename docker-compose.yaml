@@ -8,6 +8,6 @@ services:
     ports:
       - 27017:27017
     environment:
-      MONGODB_DATABASE: lito-students
+      MONGODB_DATABASE: villa-learning-appointment
     volumes:
       - ./mongo:/data/db
