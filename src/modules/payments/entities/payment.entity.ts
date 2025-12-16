@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 import { PaymentStatus } from 'src/enum';
-import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { Appointment } from 'src/modules/appointments/entities/appointment.entity';
 
 @Schema()
 export class Payment extends Document {

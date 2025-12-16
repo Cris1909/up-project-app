@@ -26,12 +26,12 @@ import {
   ReviewAppointmentDto,
   UpdateAppointmentStatusDto,
 } from './dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/modules/auth/decorators';
 import { Errors, ValidRoles } from 'src/enum';
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { errorsToString, rolesRequired } from 'src/helpers';
 import { Appointment } from './entities';
-import { User } from 'src/auth/entities';
+import { User } from 'src/modules/auth/entities';
 
 const CREATE_APPOINTMENT_400 = errorsToString(
   Errors.DATE_INVALID_FORMAT,

@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel, FilterQuery } from 'mongoose';
 
 import { Appointment } from './entities';
-import { AvailableSchedule } from 'src/available-schedules/entities';
+import { AvailableSchedule } from 'src/modules/available-schedules/entities';
 import {
   ApproveAppointmentDto,
   CompleteAppointmentDto,
@@ -22,7 +22,7 @@ import {
 import { DateHelper, parseToObjectId, validateEnum } from 'src/helpers';
 import { AppointmentStatus, Errors, PaymentStatus, ValidRoles } from 'src/enum';
 import { PaymentsService } from 'src/payments/payments.service';
-import { User } from 'src/auth/entities';
+import { User } from 'src/modules/auth/entities';
 
 @Injectable()
 export class AppointmentsService {

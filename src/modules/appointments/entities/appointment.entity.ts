@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { Document } from 'mongoose';
-import { User } from 'src/auth/entities';
-import { Subject } from 'src/subjects/entities';
+import { User } from 'src/modules/auth/entities';
+import { Subject } from 'src/modules/subjects/entities';
 import { AppointmentStatus } from 'src/enum';
 
 export class Review {

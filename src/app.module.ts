@@ -6,12 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { EnvConfiguration } from './config';
-import { SubjectsModule } from './subjects/subjects.module';
+import { SubjectsModule } from './modules/subjects/subjects.module';
 import { CustomExceptionFilter } from './common/filters';
 import { CommonModule } from './common/common.module';
-import { AuthModule } from './auth/auth.module';
-import { AvailableSchedulesModule } from './available-schedules/available-schedules.module';
-import { AppointmentsModule } from './appointments/appointments.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AvailableSchedulesModule } from './modules/available-schedules/available-schedules.module';
+import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { PaymentsModule } from './payments/payments.module';
 
 @Module({

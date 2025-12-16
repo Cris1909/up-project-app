@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Appointment, AppointmentSchema } from './entities';
 
 import { DateHelper } from 'src/helpers';
-import { AvailableSchedulesModule } from 'src/available-schedules/available-schedules.module';
+import { AvailableSchedulesModule } from 'src/modules/available-schedules/available-schedules.module';
 import { PaymentsModule } from 'src/payments/payments.module';
 import { PaymentsService } from 'src/payments/payments.service';
 

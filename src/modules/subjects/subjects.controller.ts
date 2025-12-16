@@ -16,7 +16,7 @@ import { CreateSubjectDto, UpdateSubjectDto } from './dto';
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { Errors, ValidRoles } from 'src/enum';
 import { errorsToString, rolesRequired } from 'src/helpers';
-import { Auth } from 'src/auth/decorators';
+import { Auth } from 'src/modules/auth/decorators';
 
 const CREATE_SUBJECT_400 = errorsToString(
   Errors.SUBJECT_ALREADY_EXIST,

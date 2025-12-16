@@ -19,7 +19,7 @@ import {
 
 import { AvailableSchedulesService } from './available-schedules.service';
 import { CreateAvailableScheduleDto, UpdateAvailableScheduleDto } from './dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/modules/auth/decorators';
 import { Errors, ValidRoles } from 'src/enum';
 import { ParseMongoIdPipe } from 'src/common/pipes';
 import { errorsToString, rolesRequired } from 'src/helpers';

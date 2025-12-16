@@ -10,7 +10,7 @@ import mongoose, {
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 var aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
-import { User } from 'src/auth/entities';
+import { User } from 'src/modules/auth/entities';
 @Schema()
 export class AvailableSchedule extends Document {
   @ApiProperty({
