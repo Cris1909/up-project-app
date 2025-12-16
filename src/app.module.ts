@@ -12,7 +12,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AvailableSchedulesModule } from './modules/available-schedules/available-schedules.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
-import { PaymentsModule } from './payments/payments.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [

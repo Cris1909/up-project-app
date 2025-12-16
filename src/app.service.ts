@@ -5,9 +5,7 @@ import { ConfigService } from '@nestjs/config';
 export class AppService {
   environment: string;
 
-  constructor(
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.environment = configService.get<string>('environment');
   }
 
