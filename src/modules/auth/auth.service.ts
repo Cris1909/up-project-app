@@ -88,9 +88,9 @@ export class AuthService {
 
   async getUserCount(): Promise<number> {
     const result = await this.userModel.countDocuments({
-      roles: { $in: [ValidRoles.STUDENT] }, 
+      roles: { $in: [ValidRoles.STUDENT] },
     });
-    return result
+    return result;
   }
 
   private getJwtToken({ _id, email, name, phoneNumber, roles }: JwtPayload) {

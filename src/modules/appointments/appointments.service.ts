@@ -16,13 +16,12 @@ import {
   RejectAppointmentDto,
   ReviewAppointmentDto,
   UpdateAppointmentDto,
-  UpdateAppointmentStatusDto,
 } from './dto';
 
 import { DateHelper, parseToObjectId, validateEnum } from 'src/helpers';
 import { AppointmentStatus, Errors, PaymentStatus, ValidRoles } from 'src/enum';
-import { PaymentsService } from 'src/payments/payments.service';
 import { User } from 'src/modules/auth/entities';
+import { PaymentsService } from '../payments/payments.service';
 
 @Injectable()
 export class AppointmentsService {
@@ -446,7 +445,7 @@ export class AppointmentsService {
 
   async getCompletedAppointments() {
     const result = await this.appointmentModel.count({
-        status: AppointmentStatus.COMPLETED,
+      status: AppointmentStatus.COMPLETED,
     });
     // const result = appointmentHours[0]?.totalHours || 0;
     return result;

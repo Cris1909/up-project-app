@@ -7,8 +7,8 @@ import { Appointment, AppointmentSchema } from './entities';
 
 import { DateHelper } from 'src/helpers';
 import { AvailableSchedulesModule } from 'src/modules/available-schedules/available-schedules.module';
-import { PaymentsModule } from 'src/payments/payments.module';
-import { PaymentsService } from 'src/payments/payments.service';
+import { PaymentsService } from '../payments/payments.service';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
   controllers: [AppointmentsController],

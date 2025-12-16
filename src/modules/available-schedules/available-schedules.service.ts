@@ -37,9 +37,9 @@ export class AvailableSchedulesService {
     if (this.dateHelper.isToday(providedDate)) {
       this.validateHours(hours);
     }
-    
+
     const filteredHours = this.filterRepeatHours(hours).sort((a, b) => a - b);
-    
+
     try {
       const availableSchedule = await this.availableScheduleModel.create({
         teacherId,
@@ -104,7 +104,7 @@ export class AvailableSchedulesService {
     await this.findOne({ _id });
     try {
       await this.availableScheduleModel.deleteOne({ _id });
-      return {success: true}
+      return { success: true };
     } catch (error) {
       this.handleExceptions(error);
     }

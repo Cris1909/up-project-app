@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { Payment } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Errors, PaymentStatus } from 'src/enum';
-import { parseToObjectId } from '../helpers/parseToObjectId';
+import { parseToObjectId } from 'src/helpers';
 
 @Injectable()
 export class PaymentsService {
@@ -36,7 +36,9 @@ export class PaymentsService {
   }): Promise<Payment> {
     const payment = paymentId
       ? await this.paymentModel.findById(paymentId)
-      : await this.paymentModel.findOne({ appointment: parseToObjectId(appointmentId) });
+      : await this.paymentModel.findOne({
+          appointment: parseToObjectId(appointmentId),
+        });
     if (!payment) throw new NotFoundException(Errors.PAYMENT_NOT_FOUND);
     try {
       payment.status = newStatus;

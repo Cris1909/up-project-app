@@ -86,7 +86,7 @@ export class AppointmentsController {
     isArray: true,
     type: Appointment,
   })
-  async findByWeek(@Query('date') date: Date, @GetUser() user: User,) {
+  async findByWeek(@Query('date') date: Date, @GetUser() user: User) {
     return await this.appointmentsService.findByWeek(date, user);
   }
 
@@ -102,7 +102,7 @@ export class AppointmentsController {
   async delete(@Param('id', ParseMongoIdPipe) id: string) {
     return await this.appointmentsService.delete(id);
   }
-  
+
   @ApiOperation({
     summary: 'Actualizar el estado de una asesoría',
   })
@@ -205,7 +205,10 @@ export class AppointmentsController {
     @Param('id', ParseMongoIdPipe) id: string,
     @Body() completeAppointmentDto: CompleteAppointmentDto,
   ) {
-    return this.appointmentsService.completeAppointment(id, completeAppointmentDto);
+    return this.appointmentsService.completeAppointment(
+      id,
+      completeAppointmentDto,
+    );
   }
 
   @ApiOperation({
@@ -232,17 +235,25 @@ export class AppointmentsController {
 
   @Auth(ValidRoles.ADMIN)
   @Get('subject-appointments')
-  @ApiOperation({ summary: 'Obtener el número de asesorías por materia activa' })
-  @ApiOkResponse({ description: 'Estadísticas de asesorías por materia', type: Object })
-  async getSubjectAppointmentsCount(): Promise<Object> {
+  @ApiOperation({
+    summary: 'Obtener el número de asesorías por materia activa',
+  })
+  @ApiOkResponse({
+    description: 'Estadísticas de asesorías por materia',
+    type: Object,
+  })
+  async getSubjectAppointmentsCount(): Promise<any> {
     return await this.appointmentsService.getAppointmentsBySubject();
   }
 
   @Auth(ValidRoles.ADMIN)
   @Get('appointment-stats')
   @ApiOperation({ summary: 'Obtener estadísticas generales de asesorías' })
-  @ApiOkResponse({ description: 'Estadísticas generales de asesorías', type: Object })
-  async getAppointmentStats(): Promise<Object> {
+  @ApiOkResponse({
+    description: 'Estadísticas generales de asesorías',
+    type: Object,
+  })
+  async getAppointmentStats(): Promise<any> {
     return await this.appointmentsService.getAppointmentHours();
   }
 
@@ -250,16 +261,18 @@ export class AppointmentsController {
   @Get('average-ratings')
   @ApiOperation({ summary: 'Obtener el promedio de estrellas de asesorías' })
   @ApiOkResponse({ description: 'Estadísticas de estrellas', type: Object })
-  async getAverageStars(): Promise<Object> {
+  async getAverageStars(): Promise<any> {
     return await this.appointmentsService.getAverageRating();
   }
 
   @Auth(ValidRoles.ADMIN)
   @Get('total-appointments-completed')
   @ApiOperation({ summary: 'Obtener estadísticas de asesorías completadas' })
-  @ApiOkResponse({ description: 'Número de asesorías completadas', type: Object })
-  async getCompletedAppointments(): Promise<Object> {
+  @ApiOkResponse({
+    description: 'Número de asesorías completadas',
+    type: Object,
+  })
+  async getCompletedAppointments(): Promise<any> {
     return await this.appointmentsService.getCompletedAppointments();
   }
-  
 }
