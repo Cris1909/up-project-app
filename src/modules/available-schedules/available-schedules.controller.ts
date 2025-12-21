@@ -29,7 +29,7 @@ const CREATE_AVAILABLE_SCHEDULE_400 = errorsToString(
   Errors.DATE_INVALID_FORMAT,
   Errors.HOURS_INVALID,
   Errors.DATE_IS_PREVIOUS,
-  Errors.HOURS_EMPTY
+  Errors.HOURS_EMPTY,
 );
 
 const UPDATE_AVAILABLE_SCHEDULE_400 = errorsToString(

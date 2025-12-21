@@ -15,6 +15,6 @@ import { DateHelper } from 'src/helpers';
       },
     ]),
   ],
-  exports: [MongooseModule]
+  exports: [MongooseModule],
 })
 export class AvailableSchedulesModule {}
